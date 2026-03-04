@@ -20,6 +20,7 @@ python scripts/md_to_confluence.py <INPUT_FILE> <OUTPUT_FILE>
 ## 테스트
 
 스크립트 수정 후 회귀 방지를 위해 테스트를 실행한다.
+문서 변환 작업을 수행한 뒤에도 결과 안정성 확인을 위해 회귀 테스트를 반드시 실행한다.
 
 ```bash
 python tests/test_converter.py
@@ -31,6 +32,7 @@ python tests/test_converter.py
 - 박스: Info/Warning/Note를 `{info}`, `{warning}`, `{note}`로 변환하고 반드시 닫는다
 - 코드 블록: 지원 언어만 `{code:<lang>}`로, 미지원 언어는 `{code}` 사용
 - 금지: `{code:json}`, `{code:yaml}`
+- 번호 목록 + 코드블록: 번호 항목 바로 아래 코드블록이 오면 Confluence 표시 안정성을 위해 `1)`, `2)` 텍스트 번호를 사용
 - 테이블 헤더: `|| Header ||`
 - 링크: `[Text](URL)` -> `[Text|URL]`
 - 수평선 `---`: 제거
@@ -50,3 +52,4 @@ python tests/test_converter.py
 3. 박스 태그가 올바르게 닫혔는지 확인한다
 4. 코드 블록 언어가 적절히 지정되었는지 확인한다
 5. 제목이 `h1.`, `h2.` 형식으로 변환되었는지 확인한다
+6. 번호 목록 바로 아래 코드블록 구간이 `1)`, `2)` 텍스트 번호로 출력되는지 확인한다
