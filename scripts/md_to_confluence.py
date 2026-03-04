@@ -2,6 +2,37 @@ import sys
 import re
 import os
 
+def calculate_list_level(indent):
+    return (indent // 4) + 1 if indent % 4 == 0 else (indent // 2) + 1
+
+def find_parent_bullet_level(lines, current_index, current_indent):
+    j = current_index - 1
+    while j >= 0:
+        prev_line = lines[j]
+        if prev_line.strip() == '':
+            j -= 1
+            continue
+
+        if prev_line.strip().startswith('```'):
+            break
+
+        numbered_match = re.match(r'^(\s*)(\d+)\.\s+(.+)$', prev_line)
+        bullet_match = re.match(r'^(\s*)([-*])\s+(.+)$', prev_line)
+        if numbered_match or bullet_match:
+            match_obj = numbered_match if numbered_match else bullet_match
+            prev_indent = len(match_obj.group(1))
+            if prev_indent >= current_indent:
+                j -= 1
+                continue
+
+            if bullet_match:
+                return calculate_list_level(prev_indent)
+            return 0
+
+        break
+
+    return 0
+
 def remove_emojis(text):
     # 1. Astral Plane (Most emojis like 🐳, 📝, 💡)
     text = re.sub(r'[\U00010000-\U0010ffff]', '', text)
@@ -39,11 +70,18 @@ def process_inline_formatting(text):
     
     return text
 
+def is_markdown_list_line(text):
+    return re.match(r'^\s*(\d+\.\s+|[-*]\s+).+$', text) is not None
+
+def is_confluence_list_line(text):
+    return re.match(r'^([#*]+|\d+\))\s+.+$', text) is not None
+
 def convert_to_confluence(content):
     lines = content.split('\n')
     output = []
     in_code_block = False
     in_numbered_list = False
+    numbered_list_indent = None
     
     # Supported languages
     SUPPORTED_LANGUAGES = {
@@ -131,6 +169,7 @@ def convert_to_confluence(content):
                 i += 1
                 container_in_code = False
                 box_in_numbered_list = False
+                box_numbered_indent = None
                 while i < len(lines) and lines[i].strip().startswith('>'):
                     raw_line = lines[i].strip()
                     content_line = raw_line[2:] if raw_line.startswith('> ') else raw_line[1:]
@@ -146,10 +185,11 @@ def convert_to_confluence(content):
                                 numbered_match = re.match(r'^(\s*)(\d+)\.\s+(.+)$', content_line)
                                 if numbered_match:
                                     indent = len(numbered_match.group(1))
-                                    hash_count = (indent // 4) + 1 if indent % 4 == 0 else (indent // 2) + 1
+                                    hash_count = calculate_list_level(indent)
                                     text = process_inline_formatting(numbered_match.group(3))
                                     output.append(f"{'#' * hash_count} {text}")
                                     box_in_numbered_list = True
+                                    box_numbered_indent = indent
                                     i += 1
                                     continue
 
@@ -157,22 +197,26 @@ def convert_to_confluence(content):
                                 if list_match:
                                     indent = len(list_match.group(1))
                                     text = process_inline_formatting(list_match.group(3))
-                                    if box_in_numbered_list and indent > 0:
-                                        star_count = max(1, indent // 4)
+                                    if box_in_numbered_list and box_numbered_indent is not None and indent >= box_numbered_indent:
+                                        relative_indent = indent - box_numbered_indent
+                                        star_count = max(1, relative_indent // 4)
                                         output.append(f"#{'*' * star_count} {text}")
                                     else:
-                                        star_count = (indent // 4) + 1 if indent % 4 == 0 else (indent // 2) + 1
+                                        star_count = calculate_list_level(indent)
                                         if indent == 0:
                                             box_in_numbered_list = False
+                                            box_numbered_indent = None
                                         output.append(f"{'*' * star_count} {text}")
                                     i += 1
                                     continue
 
                                 box_in_numbered_list = False
+                                box_numbered_indent = None
                                 content_line = process_inline_formatting(content_line)
                             output.append(content_line)
                         else:
                             box_in_numbered_list = False
+                            box_numbered_indent = None
                             output.append('')
                     i += 1
                 
@@ -191,6 +235,32 @@ def convert_to_confluence(content):
                 output.append(f'h{level}. {text}')
                 i += 1
                 continue
+
+        # Blank line handling:
+        # Confluence resets numbered lists when blank lines exist between list items.
+        if line.strip() == '':
+            next_index = i + 1
+            while next_index < len(lines) and lines[next_index].strip() == '':
+                next_index += 1
+
+            prev_non_empty = ''
+            j = len(output) - 1
+            while j >= 0:
+                if output[j].strip() != '':
+                    prev_non_empty = output[j].strip()
+                    break
+                j -= 1
+
+            next_line = lines[next_index] if next_index < len(lines) else ''
+            if prev_non_empty and is_confluence_list_line(prev_non_empty) and is_markdown_list_line(next_line):
+                i += 1
+                continue
+
+            in_numbered_list = False
+            numbered_list_indent = None
+            output.append('')
+            i += 1
+            continue
 
         # 4. Tables
         if line.strip().startswith('|'):
@@ -228,10 +298,16 @@ def convert_to_confluence(content):
             if has_following_code_block:
                 output.append(f"{numbered_match.group(2)}) {text}")
                 in_numbered_list = False
+                numbered_list_indent = None
             else:
-                hash_count = (indent // 4) + 1 if indent % 4 == 0 else (indent // 2) + 1
-                output.append(f"{'#' * hash_count} {text}")
+                parent_bullet_level = find_parent_bullet_level(lines, i, indent)
+                if parent_bullet_level > 0:
+                    output.append(f"{'*' * parent_bullet_level}# {text}")
+                else:
+                    hash_count = calculate_list_level(indent)
+                    output.append(f"{'#' * hash_count} {text}")
                 in_numbered_list = True
+                numbered_list_indent = indent
             i += 1
             continue
         
@@ -242,18 +318,22 @@ def convert_to_confluence(content):
                 continue
             indent = len(list_match.group(1))
             text = process_inline_formatting(list_match.group(3))
-            if in_numbered_list and indent > 0:
-                star_count = max(1, indent // 4)
+            if in_numbered_list and numbered_list_indent is not None and indent >= numbered_list_indent:
+                relative_indent = indent - numbered_list_indent
+                star_count = max(1, relative_indent // 4)
                 output.append(f"#{'*' * star_count} {text}")
             else:
-                star_count = (indent // 4) + 1 if indent % 4 == 0 else (indent // 2) + 1
-                if indent == 0: in_numbered_list = False
+                star_count = calculate_list_level(indent)
+                if indent == 0:
+                    in_numbered_list = False
+                    numbered_list_indent = None
                 output.append(f"{'*' * star_count} {text}")
             i += 1
             continue
-        
-        if line.strip() == '' or (not numbered_match and not list_match):
+
+        if not numbered_match and not list_match:
             in_numbered_list = False
+            numbered_list_indent = None
 
         if line.strip() == '---':
             i += 1

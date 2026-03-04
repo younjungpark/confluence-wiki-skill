@@ -32,6 +32,37 @@ class TestMdToConfluence(unittest.TestCase):
         self.assertEqual(convert_to_confluence("  * Item 2").strip(), "** Item 2")
         self.assertEqual(convert_to_confluence("1. Item 1").strip(), "# Item 1")
 
+    def test_numbered_list_nested_under_bullet(self):
+        """Nested numbered list under bullet list should be rendered as mixed markers (e.g., **#)."""
+        input_md = """
+- 권장안
+  - 동작:
+    1. Step 1
+    2. Step 2
+"""
+        result = convert_to_confluence(input_md)
+        self.assertIn("* 권장안", result)
+        self.assertIn("** 동작:", result)
+        self.assertIn("**# Step 1", result)
+        self.assertIn("**# Step 2", result)
+        self.assertNotIn("## Step 1", result)
+
+    def test_bullet_lines_under_numbered_list_keep_numbering(self):
+        """Bullets directly under numbered items should be converted to #* to avoid numbering reset in Confluence."""
+        input_md = """
+1. Draining 전환
+- 종료 절차 시작
+
+2. 대기
+- 종료 시작 시각 기록
+"""
+        result = convert_to_confluence(input_md)
+        self.assertIn("# Draining 전환", result)
+        self.assertIn("#* 종료 절차 시작", result)
+        self.assertIn("# 대기", result)
+        self.assertIn("#* 종료 시작 시각 기록", result)
+        self.assertNotIn("\n* 종료 절차 시작", result)
+
     def test_numbered_list_with_code_block_keeps_visible_numbers(self):
         """When a numbered item is followed by code block, preserve explicit numbering text."""
         input_md = """
