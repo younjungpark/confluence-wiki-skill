@@ -32,6 +32,27 @@ class TestMdToConfluence(unittest.TestCase):
         self.assertEqual(convert_to_confluence("  * Item 2").strip(), "** Item 2")
         self.assertEqual(convert_to_confluence("1. Item 1").strip(), "# Item 1")
 
+    def test_numbered_list_with_code_block_keeps_visible_numbers(self):
+        """When a numbered item is followed by code block, preserve explicit numbering text."""
+        input_md = """
+1. Codex
+
+```text
+C:\\Users\\user\\.codex\\skills\\confluence-wiki-skill
+```
+
+2. Antigravity + Gemini
+
+```text
+C:\\Users\\user\\.gemini\\skills\\confluence-wiki-skill
+```
+"""
+        result = convert_to_confluence(input_md)
+        self.assertIn("1) Codex", result)
+        self.assertIn("2) Antigravity + Gemini", result)
+        self.assertNotIn("# Codex", result)
+        self.assertNotIn("# Antigravity + Gemini", result)
+
     def test_info_box_detection(self):
         """Test Info/Warning/Note Box Detection with various formats"""
         

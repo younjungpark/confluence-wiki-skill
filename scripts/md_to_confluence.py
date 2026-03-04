@@ -216,10 +216,22 @@ def convert_to_confluence(content):
         numbered_match = re.match(r'^(\s*)(\d+)\.\s+(.+)$', line)
         if numbered_match:
             indent = len(numbered_match.group(1))
-            hash_count = (indent // 4) + 1 if indent % 4 == 0 else (indent // 2) + 1
             text = process_inline_formatting(numbered_match.group(3))
-            output.append(f"{'#' * hash_count} {text}")
-            in_numbered_list = True
+
+            # Confluence can reset numbered lists when a list item is followed by a fenced code block.
+            # In that case, keep the source number as plain text to preserve visible numbering.
+            next_index = i + 1
+            while next_index < len(lines) and lines[next_index].strip() == '':
+                next_index += 1
+            has_following_code_block = next_index < len(lines) and lines[next_index].strip().startswith('```')
+
+            if has_following_code_block:
+                output.append(f"{numbered_match.group(2)}) {text}")
+                in_numbered_list = False
+            else:
+                hash_count = (indent // 4) + 1 if indent % 4 == 0 else (indent // 2) + 1
+                output.append(f"{'#' * hash_count} {text}")
+                in_numbered_list = True
             i += 1
             continue
         
