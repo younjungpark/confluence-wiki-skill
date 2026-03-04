@@ -3,7 +3,7 @@ import re
 import os
 
 def calculate_list_level(indent):
-    return (indent // 4) + 1 if indent % 4 == 0 else (indent // 2) + 1
+    return (indent // 2) + 1
 
 def find_parent_bullet_level(lines, current_index, current_indent):
     j = current_index - 1
@@ -231,6 +231,7 @@ def convert_to_confluence(content):
             if match:
                 level = len(match.group(2))
                 text = match.group(3)
+                text = re.sub(r'`([^`]+)`', r'\1', text)
                 text = text.replace('**', '').replace('[', '\[').replace(']', '\]')
                 output.append(f'h{level}. {text}')
                 i += 1

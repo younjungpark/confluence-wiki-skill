@@ -20,6 +20,9 @@ class TestMdToConfluence(unittest.TestCase):
         # New: Test heading with formatting (Order of operations fix)
         self.assertIn("h2. Formatted Title", convert_to_confluence("## **Formatted Title**"))
 
+        # New: Inline code in headings should not keep markdown backticks
+        self.assertIn("h2. 설정 설계 (application.yml)", convert_to_confluence("## 설정 설계 (`application.yml`)"))
+
     def test_bold_text(self):
         """Test Bold Text Conversion"""
         # Should add spaces for better rendering in Confluence
@@ -31,6 +34,18 @@ class TestMdToConfluence(unittest.TestCase):
         self.assertEqual(convert_to_confluence("* Item 1").strip(), "* Item 1")
         self.assertEqual(convert_to_confluence("  * Item 2").strip(), "** Item 2")
         self.assertEqual(convert_to_confluence("1. Item 1").strip(), "# Item 1")
+
+    def test_nested_bullet_list_three_levels(self):
+        """Two-space indents should preserve nested depth (root -> child -> grandchild)."""
+        input_md = """
+- Root
+  - Child
+    - Grandchild
+"""
+        result = convert_to_confluence(input_md)
+        self.assertIn("* Root", result)
+        self.assertIn("** Child", result)
+        self.assertIn("*** Grandchild", result)
 
     def test_numbered_list_nested_under_bullet(self):
         """Nested numbered list under bullet list should be rendered as mixed markers (e.g., **#)."""
