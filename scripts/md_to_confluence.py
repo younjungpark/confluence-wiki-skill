@@ -98,19 +98,16 @@ def convert_to_confluence(content):
         # 1. Code Block
         if line.strip().startswith('```'):
             if in_code_block:
-                 if hasattr(convert_to_confluence, 'current_lang') and convert_to_confluence.current_lang == 'mermaid':
-                     output.append('```')
-                 output.append('{code}')
-                 in_code_block = False
-                 convert_to_confluence.current_lang = None
+                output.append('{code}')
+                in_code_block = False
+                convert_to_confluence.current_lang = None
             else:
                 lang = line.strip()[3:].strip()
                 lang_lower = lang.lower()
                 if lang_lower in ['xml', 'html']: lang_lower = 'html/xml'
                 
                 if lang_lower == 'mermaid':
-                    output.append('{code:collapse=true}')
-                    output.append('```mermaid')
+                    output.append('{code:title=mermaid code|collapse=true}')
                     convert_to_confluence.current_lang = 'mermaid'
                 elif lang_lower in SUPPORTED_LANGUAGES:
                     output.append(f'{{code:language={lang_lower}}}')
@@ -231,8 +228,10 @@ def convert_to_confluence(content):
             if match:
                 level = len(match.group(2))
                 text = match.group(3)
-                text = re.sub(r'`([^`]+)`', r'\1', text)
-                text = text.replace('**', '').replace('[', '\[').replace(']', '\]')
+                # Keep headings plain while preserving link conversion.
+                text = remove_emojis(text)
+                text = re.sub(r'\*\*(.*?)\*\*', r'\1', text)
+                text = process_inline_formatting(text).strip()
                 output.append(f'h{level}. {text}')
                 i += 1
                 continue

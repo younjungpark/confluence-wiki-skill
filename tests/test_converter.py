@@ -23,6 +23,15 @@ class TestMdToConfluence(unittest.TestCase):
         # New: Inline code in headings should not keep markdown backticks
         self.assertIn("h2. 설정 설계 (application.yml)", convert_to_confluence("## 설정 설계 (`application.yml`)"))
 
+    def test_heading_with_markdown_link_conversion(self):
+        """Heading markdown links should be converted to Confluence link syntax."""
+        input_md = "### 8.1 단위 테스트 ([ConnectionPoolManagerTest](/c:/work/path/ConnectionPoolManagerTest.java))"
+        result = convert_to_confluence(input_md)
+        self.assertIn(
+            "h3. 8.1 단위 테스트 ([ConnectionPoolManagerTest|/c:/work/path/ConnectionPoolManagerTest.java])",
+            result
+        )
+
     def test_bold_text(self):
         """Test Bold Text Conversion"""
         # Should add spaces for better rendering in Confluence
@@ -98,6 +107,21 @@ C:\\Users\\user\\.gemini\\skills\\confluence-wiki-skill
         self.assertIn("2) Antigravity + Gemini", result)
         self.assertNotIn("# Codex", result)
         self.assertNotIn("# Antigravity + Gemini", result)
+
+    def test_mermaid_code_block_is_collapsed_without_fence_markers(self):
+        """Mermaid code blocks should default to collapsed Confluence code blocks with raw Mermaid content only."""
+        input_md = """
+```mermaid
+sequenceDiagram
+    A->>B: Hello
+```
+"""
+        result = convert_to_confluence(input_md)
+        self.assertIn("{code:title=mermaid code|collapse=true}", result)
+        self.assertIn("sequenceDiagram", result)
+        self.assertIn("A->>B: Hello", result)
+        self.assertNotIn("```mermaid", result)
+        self.assertNotIn("```", result)
 
     def test_info_box_detection(self):
         """Test Info/Warning/Note Box Detection with various formats"""

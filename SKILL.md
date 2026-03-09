@@ -31,6 +31,7 @@ python tests/test_converter.py
 - 제목: `#`, `##`, `###` -> `h1.`, `h2.`, `h3.`
 - 박스: Info/Warning/Note를 `{info}`, `{warning}`, `{note}`로 변환하고 반드시 닫는다
 - 코드 블록: 지원 언어만 `{code:<lang>}`로, 미지원 언어는 `{code}` 사용
+- Mermaid 코드 블록: `.wiki`에서는 기본적으로 `{code:title=mermaid code|collapse=true}`를 사용하고, 내부에는 Mermaid 본문만 넣는다
 - 금지: `{code:json}`, `{code:yaml}`
 - 번호 목록 + 코드블록: 번호 항목 바로 아래 코드블록이 오면 Confluence 표시 안정성을 위해 `1)`, `2)` 텍스트 번호를 사용
 - 테이블 헤더: `|| Header ||`
@@ -53,3 +54,4 @@ python tests/test_converter.py
 4. 코드 블록 언어가 적절히 지정되었는지 확인한다
 5. 제목이 `h1.`, `h2.` 형식으로 변환되었는지 확인한다
 6. 번호 목록 바로 아래 코드블록 구간이 `1)`, `2)` 텍스트 번호로 출력되는지 확인한다
+7. Mermaid 코드 블록이 `{code:title=mermaid code|collapse=true}`로 접히고, 백틱 펜스 없이 본문만 들어가는지 확인한다
