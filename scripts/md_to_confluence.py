@@ -124,7 +124,7 @@ def convert_to_confluence(content):
             i += 1
             continue
 
-        # 2. Info/Warning Boxes
+        # 2. Info/Warning Boxes and generic blockquotes
         if line.strip().startswith('>'):
             box_type = None
             pattern = None
@@ -221,6 +221,21 @@ def convert_to_confluence(content):
                 match_tag = re.match(r'\{([a-zA-Z]+)', box_type)
                 if match_tag: output.append(f'{{{match_tag.group(1)}}}')
                 continue
+
+            # Generic Markdown blockquotes should not leave raw '>' markers in output.
+            output.append('{quote}')
+            while i < len(lines) and lines[i].strip().startswith('>'):
+                raw_line = lines[i].strip()
+                content_line = raw_line[2:] if raw_line.startswith('> ') else raw_line[1:]
+                if content_line.strip():
+                    content_line = remove_emojis(content_line)
+                    content_line = process_inline_formatting(content_line)
+                    output.append(content_line)
+                else:
+                    output.append('')
+                i += 1
+            output.append('{quote}')
+            continue
 
         # 3. Headings
         if line.strip().startswith('#'):

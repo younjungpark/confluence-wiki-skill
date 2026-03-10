@@ -171,6 +171,19 @@ sequenceDiagram
         self.assertIn("{code}", result)
         self.assertIn("SELECT * FROM table;", result)
 
+    def test_generic_blockquote_conversion(self):
+        """Plain markdown blockquotes should become Confluence quote macros."""
+        input_md = """
+> DAT-16은 접속 정책을 먼저 고정한다.
+>
+> 후속 SQL 실행 엔진은 별도 단계에서 다룬다.
+"""
+        result = convert_to_confluence(input_md)
+        self.assertIn("{quote}", result)
+        self.assertIn("DAT-16은 접속 정책을 먼저 고정한다.", result)
+        self.assertIn("후속 SQL 실행 엔진은 별도 단계에서 다룬다.", result)
+        self.assertNotIn("> DAT-16은", result)
+
     def test_table_conversion(self):
         """Test Table Conversion"""
         input_md = """
