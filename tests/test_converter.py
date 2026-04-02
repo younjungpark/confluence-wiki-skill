@@ -206,6 +206,13 @@ sequenceDiagram
         self.assertIn("{note:title=참고}", result)
         # Should NOT contain backticks (Confluence doesn't interpret them)
         self.assertNotIn("`CREATE USER`", result)
+        self.assertIn("Use CREATE USER command.", result)
+
+    def test_inline_code_prevents_confluence_emoticon_parsing(self):
+        """Inline code should escape emoticon-like patterns such as (?) to avoid Confluence icon rendering."""
+        input_md = '* `INSERT INTO T (INT_COL) VALUES (?)` + `"123"`: 일반 scalar 경로'
+        result = convert_to_confluence(input_md)
+        self.assertIn('* INSERT INTO T (INT_COL) VALUES \\(?) + "123": 일반 scalar 경로', result)
 
     def test_horizontal_rule_removal(self):
         """Test Horizontal Rule (---) is removed"""

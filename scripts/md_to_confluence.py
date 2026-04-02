@@ -41,6 +41,17 @@ def remove_emojis(text):
     text = re.sub(r'[\u2600-\u26FF\u2700-\u2704\u2706-\u274B\u274D-\u27BF\u2300-\u23FF]', '', text)
     return text
 
+def escape_confluence_emoticons(text):
+    emoticon_patterns = [
+        ':)', ':(', ':P', ':D', ';)',
+        '(y)', '(n)', '(i)', '(/)', '(x)', '(!)', '(+)', '(-)', '(?)',
+        '(on)', '(off)', '(*)', '(*r)', '(*g)', '(*b)', '(*y)'
+    ]
+
+    for pattern in sorted(emoticon_patterns, key=len, reverse=True):
+        text = text.replace(pattern, '\\' + pattern)
+    return text
+
 def process_inline_formatting(text):
     if not text:
         return text
@@ -48,7 +59,7 @@ def process_inline_formatting(text):
     # 1. Bold (**text** -> * text * )
     text = re.sub(r'\*\*(.*?)\*\*', r' *\1* ', text)
     
-    # 2. Inline Code (`text` -> text with escapes)
+    # 2. Inline Code (`text` -> plain text with escapes)
     def smart_inline_code(match):
         content = match.group(1)
         # Escape significant Wiki characters
@@ -56,6 +67,7 @@ def process_inline_formatting(text):
         processed = processed.replace('[', r'\[').replace(']', r'\]')
         processed = processed.replace('|', r'\|')
         processed = processed.replace('*', r'\*')
+        processed = escape_confluence_emoticons(processed)
         return processed
         
     text = re.sub(r'`([^`]+)`', smart_inline_code, text)
