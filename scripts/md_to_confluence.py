@@ -52,14 +52,40 @@ def escape_confluence_emoticons(text):
         text = text.replace(pattern, '\\' + pattern)
     return text
 
+def confluence_image_ref(target):
+    target = target.strip()
+
+    if target.startswith('<') and '>' in target:
+        target = target[1:target.index('>')]
+    else:
+        title_match = re.match(r'^(\S+)\s+["\'].*["\']\s*$', target)
+        if title_match:
+            target = title_match.group(1)
+
+    if re.match(r'^[a-zA-Z][a-zA-Z0-9+.-]*://', target):
+        image_name = target
+    else:
+        clean_target = target.split('#', 1)[0].split('?', 1)[0].rstrip('/\\')
+        image_name = re.split(r'[\\/]', clean_target)[-1]
+
+    return f'!{image_name}|width=900!'
+
+
 def process_inline_formatting(text):
     if not text:
         return text
+
+    # 1. Images (![alt](path) -> !filename.png|width=900!)
+    text = re.sub(
+        r'!\[([^\]]*)\]\(([^)]+)\)',
+        lambda match: confluence_image_ref(match.group(2)),
+        text,
+    )
         
-    # 1. Bold (**text** -> * text * )
+    # 2. Bold (**text** -> * text * )
     text = re.sub(r'\*\*(.*?)\*\*', r' *\1* ', text)
     
-    # 2. Inline Code (`text` -> plain text with escapes)
+    # 3. Inline Code (`text` -> plain text with escapes)
     def smart_inline_code(match):
         content = match.group(1)
         # Escape significant Wiki characters
@@ -72,10 +98,10 @@ def process_inline_formatting(text):
         
     text = re.sub(r'`([^`]+)`', smart_inline_code, text)
     
-    # 3. Links ([Text](URL) -> [Text|URL])
+    # 4. Links ([Text](URL) -> [Text|URL])
     text = re.sub(r'\[([^\]]+)\]\(((?:https?://|/|#|mailto:)[^)]+)\)', r'[\1|\2]', text)
     
-    # 4. Escape special chars (if not already handled)
+    # 5. Escape special chars (if not already handled)
     text = re.sub(r'(?<!\\)(?<!\{)\{(?!\{)', r'\{', text)
     text = re.sub(r'(?<!\\)(?<!\})\}(?!\})', r'\}', text)
     text = re.sub(r'(?<!\\)\[(?!(?:https?://|[^\]]+\|))', r'\[', text)
@@ -387,3 +413,4 @@ if __name__ == "__main__":
     file_no_ext = os.path.splitext(input_file)[0]
     output_file = sys.argv[2] if len(sys.argv) >= 3 else f"{file_no_ext}.wiki"
     convert_file(input_file, output_file)
+

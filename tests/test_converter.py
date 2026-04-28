@@ -199,6 +199,18 @@ sequenceDiagram
         """Test Link Conversion"""
         self.assertEqual(convert_to_confluence("[Google](https://google.com)").strip(), "[Google|https://google.com]")
 
+    def test_image_conversion_to_attachment_markup(self):
+        """Markdown images should become Confluence attachment image markup."""
+        result = convert_to_confluence("![10 VU p95](images/p95-latency-10vu.png)")
+        self.assertEqual(result.strip(), "!p95-latency-10vu.png|width=900!")
+        self.assertNotIn("![", result)
+        self.assertNotIn("images/", result)
+
+    def test_image_conversion_with_absolute_windows_path(self):
+        """Only the image file name should remain for local attachment references."""
+        result = convert_to_confluence("![Chart](C:\\work\\report\\images\\chart.png)")
+        self.assertEqual(result.strip(), "!chart.png|width=900!")
+
     def test_inline_code_in_box(self):
         """Test Inline Code conversion inside Box (Bug Fix)"""
         input_md = "> **[Note]**\n> Use `CREATE USER` command."
@@ -224,3 +236,4 @@ sequenceDiagram
 
 if __name__ == '__main__':
     unittest.main()
+
