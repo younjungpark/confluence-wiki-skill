@@ -4,7 +4,7 @@ import os
 
 # Add scripts directory to path to allow import
 sys.path.append(os.path.join(os.path.dirname(__file__), '../scripts'))
-from md_to_confluence import convert_to_confluence
+from md_to_confluence import convert_file, convert_to_confluence
 
 class TestMdToConfluence(unittest.TestCase):
     
@@ -232,6 +232,22 @@ sequenceDiagram
         self.assertNotIn("---", result)
         self.assertIn("Text Before", result)
         self.assertIn("Text After", result)
+
+    def test_convert_file_appends_markdown_source_attachment_link(self):
+        """File conversion should append a Confluence attachment link to the source Markdown."""
+        import tempfile
+        with tempfile.TemporaryDirectory() as temp_dir:
+            input_path = os.path.join(temp_dir, 'configuration-matrix.md')
+            output_path = os.path.join(temp_dir, 'configuration-matrix.wiki')
+            with open(input_path, 'w', encoding='utf-8') as f:
+                f.write('# 설정 매트릭스\n')
+            convert_file(input_path, output_path)
+            with open(output_path, 'r', encoding='utf-8') as f:
+                result = f.read()
+
+        self.assertIn('h2. MarkDown 원본문서', result)
+        self.assertIn('[configuration-matrix.md|^configuration-matrix.md]', result)
+        self.assertNotIn('[configuration-matrix.md^configuration-matrix.md]', result)
 
 
 if __name__ == '__main__':

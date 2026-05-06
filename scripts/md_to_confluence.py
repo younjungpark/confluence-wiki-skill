@@ -398,11 +398,21 @@ def convert_to_confluence(content):
 
     return '\n'.join(output)
 
+def markdown_source_section(input_file):
+    file_name = os.path.basename(input_file)
+    if not file_name.lower().endswith(('.md', '.markdown')):
+        return ''
+    return f'\n\nh2. MarkDown 원본문서\n\n[{file_name}|^{file_name}]'
+
 def convert_file(input_file, output_file):
     if not os.path.exists(input_file): return
     with open(input_file, 'r', encoding='utf-8') as f:
         content = f.read()
-    converted = convert_to_confluence(content)
+    converted = convert_to_confluence(content).rstrip()
+    source_section = markdown_source_section(input_file)
+    if source_section:
+        converted += source_section
+    converted += '\n'
     with open(output_file, 'w', encoding='utf-8') as f:
         f.write(converted)
     print(f"Successfully converted and saved to: {output_file}")

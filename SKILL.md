@@ -17,6 +17,8 @@ python scripts/md_to_confluence.py <INPUT_FILE>
 python scripts/md_to_confluence.py <INPUT_FILE> <OUTPUT_FILE>
 ```
 
+파일 변환 결과 하단에는 원본 Markdown 첨부 링크 섹션을 자동으로 추가한다. Markdown 원본은 Confluence 페이지에 같은 파일명으로 수동 첨부하고, 링크 문법은 `[파일명|^파일명]`을 사용한다.
+
 ## 테스트
 
 스크립트 수정 후 회귀 방지를 위해 테스트를 실행한다.
@@ -36,6 +38,7 @@ python tests/test_converter.py
 - 번호 목록 + 코드블록: 번호 항목 바로 아래 코드블록이 오면 Confluence 표시 안정성을 위해 `1)`, `2)` 텍스트 번호를 사용
 - 테이블 헤더: `|| Header ||`
 - 링크: `[Text](URL)` -> `[Text|URL]`
+- 원본 Markdown 링크 섹션: 파일 변환 결과 하단에 `h2. MarkDown 원본문서`와 `[파일명|^파일명]`을 자동 추가한다
 - 이미지: `![Alt](images/foo.png)` -> `!foo.png|width=900!`로 변환한다. 이미지는 Confluence 페이지 첨부파일로 수동 업로드한다.
 - 수평선 `---`: 제거
 - 이모지: 제거
@@ -57,4 +60,5 @@ python tests/test_converter.py
 6. Markdown 이미지가 `!파일명.png|width=900!` 형태로 변환되었는지 확인한다
 7. 번호 목록 바로 아래 코드블록 구간이 `1)`, `2)` 텍스트 번호로 출력되는지 확인한다
 8. Mermaid 코드 블록이 `{code:title=mermaid code|collapse=true}`로 접히고, 백틱 펜스 없이 본문만 들어가는지 확인한다
+9. 파일 변환 결과 하단에 `MarkDown 원본문서` 섹션과 `[파일명|^파일명]` 첨부 링크가 있는지 확인한다
 
