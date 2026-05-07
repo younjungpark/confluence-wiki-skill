@@ -109,7 +109,7 @@ C:\\Users\\user\\.gemini\\skills\\confluence-wiki-skill
         self.assertNotIn("# Antigravity + Gemini", result)
 
     def test_mermaid_code_block_is_collapsed_without_fence_markers(self):
-        """Mermaid code blocks should default to collapsed Confluence code blocks with raw Mermaid content only."""
+        """Mermaid code blocks should include attachment image markup before collapsed source code."""
         input_md = """
 ```mermaid
 sequenceDiagram
@@ -117,11 +117,33 @@ sequenceDiagram
 ```
 """
         result = convert_to_confluence(input_md)
-        self.assertIn("{code:title=mermaid code|collapse=true}", result)
+        self.assertIn("첨부 이미지: [mermaid-diagram-1.png|^mermaid-diagram-1.png]", result)
+        self.assertIn("!mermaid-diagram-1.png|width=900!", result)
+        self.assertIn("{code:title=mermaid-diagram-1.mmd|collapse=true}", result)
         self.assertIn("sequenceDiagram", result)
         self.assertIn("A->>B: Hello", result)
         self.assertNotIn("```mermaid", result)
         self.assertNotIn("```", result)
+
+    def test_mermaid_attachment_name_uses_source_and_nearest_non_generic_heading(self):
+        """Mermaid attachment names should use the source file stem and the nearest useful heading."""
+        input_md = """
+## 1. 동적 커넥션 풀 생명주기 (Dynamic Connection Pool)
+
+### 동작 흐름도
+
+```mermaid
+flowchart TD
+    A --> B
+```
+"""
+        result = convert_to_confluence(input_md, source_base_name='core-mechanisms')
+        self.assertIn(
+            "첨부 이미지: [core-mechanisms-dynamic-connection-pool.png|^core-mechanisms-dynamic-connection-pool.png]",
+            result,
+        )
+        self.assertIn("!core-mechanisms-dynamic-connection-pool.png|width=900!", result)
+        self.assertIn("{code:title=core-mechanisms-dynamic-connection-pool.mmd|collapse=true}", result)
 
     def test_info_box_detection(self):
         """Test Info/Warning/Note Box Detection with various formats"""

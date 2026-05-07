@@ -70,6 +70,54 @@ def confluence_image_ref(target):
 
     return f'!{image_name}|width=900!'
 
+def slugify_for_filename(text):
+    parenthetical_matches = re.findall(r'\(([^)]+)\)', text)
+    if parenthetical_matches:
+        text = parenthetical_matches[-1]
+
+    text = text.lower()
+    text = re.sub(r'[^a-z0-9]+', '-', text)
+    text = text.strip('-')
+    return text
+
+def is_generic_mermaid_heading(text):
+    text = re.sub(r'\*\*(.*?)\*\*', r'\1', text)
+    text = re.sub(r'`([^`]+)`', r'\1', text)
+    text = re.sub(r'^\s*\d+[.)]\s*', '', text).strip()
+    return text in {'동작 흐름도', '흐름도', 'mermaid', 'diagram'}
+
+def mermaid_attachment_name(source_base_name, heading_stack, diagram_index, used_names):
+    heading_text = ''
+    for level in sorted(heading_stack.keys(), reverse=True):
+        candidate = heading_stack[level]
+        if not is_generic_mermaid_heading(candidate):
+            heading_text = candidate
+            break
+
+    slug = slugify_for_filename(heading_text)
+    if not slug:
+        slug = f'diagram-{diagram_index}'
+
+    base_name = slugify_for_filename(source_base_name) or 'mermaid'
+    name = f'{base_name}-{slug}'
+    if name in used_names:
+        used_names[name] += 1
+        name = f'{name}-{used_names[name]}'
+    else:
+        used_names[name] = 1
+
+    return f'{name}.png'
+
+def mermaid_attachment_lines(image_name):
+    source_name = re.sub(r'\.png$', '.mmd', image_name, flags=re.IGNORECASE)
+    return [
+        f'첨부 이미지: [{image_name}|^{image_name}]',
+        '',
+        f'!{image_name}|width=900!',
+        '',
+        f'{{code:title={source_name}|collapse=true}}',
+    ]
+
 
 def process_inline_formatting(text):
     if not text:
@@ -107,12 +155,15 @@ def is_markdown_list_line(text):
 def is_confluence_list_line(text):
     return re.match(r'^([#*]+|\d+\))\s+.+$', text) is not None
 
-def convert_to_confluence(content):
+def convert_to_confluence(content, source_base_name='mermaid'):
     lines = content.split('\n')
     output = []
     in_code_block = False
     in_numbered_list = False
     numbered_list_indent = None
+    heading_stack = {}
+    mermaid_diagram_index = 0
+    used_mermaid_names = {}
     
     # Supported languages
     SUPPORTED_LANGUAGES = {
@@ -138,7 +189,14 @@ def convert_to_confluence(content):
                 if lang_lower in ['xml', 'html']: lang_lower = 'html/xml'
                 
                 if lang_lower == 'mermaid':
-                    output.append('{code:title=mermaid code|collapse=true}')
+                    mermaid_diagram_index += 1
+                    image_name = mermaid_attachment_name(
+                        source_base_name,
+                        heading_stack,
+                        mermaid_diagram_index,
+                        used_mermaid_names,
+                    )
+                    output.extend(mermaid_attachment_lines(image_name))
                     convert_to_confluence.current_lang = 'mermaid'
                 elif lang_lower in SUPPORTED_LANGUAGES:
                     output.append(f'{{code:language={lang_lower}}}')
@@ -277,6 +335,12 @@ def convert_to_confluence(content):
                 # Keep headings plain while preserving link conversion.
                 text = remove_emojis(text)
                 text = re.sub(r'\*\*(.*?)\*\*', r'\1', text)
+                heading_stack[level] = text
+                heading_stack = {
+                    existing_level: existing_text
+                    for existing_level, existing_text in heading_stack.items()
+                    if existing_level <= level
+                }
                 text = process_inline_formatting(text).strip()
                 output.append(f'h{level}. {text}')
                 i += 1
@@ -401,7 +465,8 @@ def convert_file(input_file, output_file):
     if not os.path.exists(input_file): return
     with open(input_file, 'r', encoding='utf-8') as f:
         content = f.read()
-    converted = convert_to_confluence(content).rstrip()
+    source_base_name = os.path.splitext(os.path.basename(input_file))[0]
+    converted = convert_to_confluence(content, source_base_name).rstrip()
     source_section = markdown_source_section(input_file)
     if source_section:
         converted += source_section
