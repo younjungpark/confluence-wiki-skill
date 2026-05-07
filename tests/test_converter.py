@@ -220,11 +220,36 @@ sequenceDiagram
         self.assertNotIn("`CREATE USER`", result)
         self.assertIn("Use CREATE USER command.", result)
 
-    def test_inline_code_prevents_confluence_emoticon_parsing(self):
-        """Inline code should escape emoticon-like patterns such as (?) to avoid Confluence icon rendering."""
+    def test_inline_code_is_converted_to_plain_text(self):
+        """Inline code should become plain text without Markdown backticks or Confluence styling."""
         input_md = '* `INSERT INTO T (INT_COL) VALUES (?)` + `"123"`: 일반 scalar 경로'
         result = convert_to_confluence(input_md)
-        self.assertIn('* INSERT INTO T (INT_COL) VALUES \\(?) + "123": 일반 scalar 경로', result)
+        self.assertIn('* INSERT INTO T (INT_COL) VALUES (?) + "123": 일반 scalar 경로', result)
+        self.assertNotIn('{{', result)
+
+    def test_inline_code_does_not_add_visible_escape_for_hyphen(self):
+        """Inline code should not add visible escapes around hyphens."""
+        input_md = 'DataAPI는 `data-api-<version>-altibase7x.jar`를 제공한다.'
+        result = convert_to_confluence(input_md)
+        self.assertIn('data-api-<version>-altibase7x.jar', result)
+        self.assertNotIn('data\\-api\\-<version>\\-altibase7x.jar', result)
+        self.assertNotIn('data&#45;api', result)
+        self.assertNotIn('{{', result)
+
+    def test_inline_code_does_not_add_visible_escape_for_underscore(self):
+        """Inline code should not add visible escapes around underscores."""
+        result = convert_to_confluence('기본 role은 `DATA_API_ACCESS`이다.')
+        self.assertIn('DATA_API_ACCESS', result)
+        self.assertNotIn('DATA&#95;API', result)
+        self.assertNotIn('{{', result)
+
+    def test_inline_code_url_keeps_hyphen_without_visible_escape(self):
+        """Inline code URLs should not gain visible backslash escapes around hyphens."""
+        result = convert_to_confluence('* Swagger UI: `http://localhost:8080/dataapi/swagger-ui.html`')
+        self.assertIn('http://localhost:8080/dataapi/swagger-ui.html', result)
+        self.assertNotIn('swagger\\-ui', result)
+        self.assertNotIn('swagger&#45;ui', result)
+        self.assertNotIn('{{', result)
 
     def test_horizontal_rule_removal(self):
         """Test Horizontal Rule (---) is removed"""
@@ -252,4 +277,3 @@ sequenceDiagram
 
 if __name__ == '__main__':
     unittest.main()
-

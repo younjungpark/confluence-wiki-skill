@@ -85,16 +85,9 @@ def process_inline_formatting(text):
     # 2. Bold (**text** -> * text * )
     text = re.sub(r'\*\*(.*?)\*\*', r' *\1* ', text)
     
-    # 3. Inline Code (`text` -> plain text with escapes)
+    # 3. Inline Code (`text` -> plain text)
     def smart_inline_code(match):
-        content = match.group(1)
-        # Escape significant Wiki characters
-        processed = content.replace('{', r'\{').replace('}', r'\}')
-        processed = processed.replace('[', r'\[').replace(']', r'\]')
-        processed = processed.replace('|', r'\|')
-        processed = processed.replace('*', r'\*')
-        processed = escape_confluence_emoticons(processed)
-        return processed
+        return match.group(1)
         
     text = re.sub(r'`([^`]+)`', smart_inline_code, text)
     
@@ -423,4 +416,3 @@ if __name__ == "__main__":
     file_no_ext = os.path.splitext(input_file)[0]
     output_file = sys.argv[2] if len(sys.argv) >= 3 else f"{file_no_ext}.wiki"
     convert_file(input_file, output_file)
-
