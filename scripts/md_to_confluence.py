@@ -70,6 +70,18 @@ def confluence_image_ref(target):
 
     return f'!{image_name}|width=900!'
 
+def confluence_link_ref(text, target):
+    target = target.strip()
+
+    if target.startswith('<') and '>' in target:
+        target = target[1:target.index('>')]
+    else:
+        title_match = re.match(r'^(\S+)\s+["\'].*["\']\s*$', target)
+        if title_match:
+            target = title_match.group(1)
+
+    return f'[{text}|{target}]'
+
 def slugify_for_filename(text):
     parenthetical_matches = re.findall(r'\(([^)]+)\)', text)
     if parenthetical_matches:
@@ -140,7 +152,11 @@ def process_inline_formatting(text):
     text = re.sub(r'`([^`]+)`', smart_inline_code, text)
     
     # 4. Links ([Text](URL) -> [Text|URL])
-    text = re.sub(r'\[([^\]]+)\]\(((?:https?://|/|#|mailto:)[^)]+)\)', r'[\1|\2]', text)
+    text = re.sub(
+        r'(?<!!)(?<!\\)\[([^\]]+)\]\(([^)]+)\)',
+        lambda match: confluence_link_ref(match.group(1), match.group(2)),
+        text,
+    )
     
     # 5. Escape special chars (if not already handled)
     text = re.sub(r'(?<!\\)(?<!\{)\{(?!\{)', r'\{', text)
