@@ -123,8 +123,6 @@ def mermaid_attachment_name(source_base_name, heading_stack, diagram_index, used
 def mermaid_attachment_lines(image_name):
     source_name = re.sub(r'\.png$', '.mmd', image_name, flags=re.IGNORECASE)
     return [
-        f'첨부 이미지: [{image_name}|^{image_name}]',
-        '',
         f'!{image_name}|width=900!',
         '',
         f'{{code:title={source_name}|collapse=true}}',

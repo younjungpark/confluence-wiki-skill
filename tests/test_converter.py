@@ -117,9 +117,9 @@ sequenceDiagram
 ```
 """
         result = convert_to_confluence(input_md)
-        self.assertIn("첨부 이미지: [mermaid-diagram-1.png|^mermaid-diagram-1.png]", result)
         self.assertIn("!mermaid-diagram-1.png|width=900!", result)
         self.assertIn("{code:title=mermaid-diagram-1.mmd|collapse=true}", result)
+        self.assertNotIn("첨부 이미지:", result)
         self.assertIn("sequenceDiagram", result)
         self.assertIn("A->>B: Hello", result)
         self.assertNotIn("```mermaid", result)
@@ -138,12 +138,9 @@ flowchart TD
 ```
 """
         result = convert_to_confluence(input_md, source_base_name='core-mechanisms')
-        self.assertIn(
-            "첨부 이미지: [core-mechanisms-dynamic-connection-pool.png|^core-mechanisms-dynamic-connection-pool.png]",
-            result,
-        )
         self.assertIn("!core-mechanisms-dynamic-connection-pool.png|width=900!", result)
         self.assertIn("{code:title=core-mechanisms-dynamic-connection-pool.mmd|collapse=true}", result)
+        self.assertNotIn("첨부 이미지:", result)
 
     def test_info_box_detection(self):
         """Test Info/Warning/Note Box Detection with various formats"""

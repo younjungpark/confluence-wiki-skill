@@ -33,7 +33,7 @@ python tests/test_converter.py
 - 제목: `#`, `##`, `###` -> `h1.`, `h2.`, `h3.`
 - 박스: Info/Warning/Note를 `{info}`, `{warning}`, `{note}`로 변환하고 반드시 닫는다
 - 코드 블록: 지원 언어만 `{code:<lang>}`로, 미지원 언어는 `{code}` 사용
-- Mermaid 코드 블록: `.wiki`에서는 코드 블록 앞에 `첨부 이미지: [파일명.png|^파일명.png]`와 `!파일명.png|width=900!`를 넣고, 이어서 `{code:title=파일명.mmd|collapse=true}`를 사용해 Mermaid 본문만 접힌 코드로 넣는다. 파일명은 입력 Markdown 파일명과 가장 가까운 의미 있는 제목을 조합한다.
+- Mermaid 코드 블록: `.wiki`에서는 코드 블록 앞에 `!파일명.png|width=900!` 이미지 태그를 넣고, 이어서 `{code:title=파일명.mmd|collapse=true}`를 사용해 Mermaid 본문만 접힌 코드로 넣는다. 파일명은 입력 Markdown 파일명과 가장 가까운 의미 있는 제목을 조합한다.
 - 금지: `{code:json}`, `{code:yaml}`
 - 번호 목록 + 코드블록: 번호 항목 바로 아래 코드블록이 오면 Confluence 표시 안정성을 위해 `1)`, `2)` 텍스트 번호를 사용
 - 테이블 헤더: `|| Header ||`
@@ -72,7 +72,7 @@ Confluence Wiki로 옮길 목적의 Markdown은 일반 Markdown 렌더링보다 
 5. 제목이 `h1.`, `h2.` 형식으로 변환되었는지 확인한다
 6. Markdown 이미지가 `!파일명.png|width=900!` 형태로 변환되었는지 확인한다
 7. 번호 목록 바로 아래 코드블록 구간이 `1)`, `2)` 텍스트 번호로 출력되는지 확인한다
-8. Mermaid 코드 블록 앞에 첨부 이미지 링크와 이미지 태그가 있고, `{code:title=파일명.mmd|collapse=true}`로 접히며, 백틱 펜스 없이 본문만 들어가는지 확인한다
+8. Mermaid 코드 블록 앞에 이미지 태그가 있고, `{code:title=파일명.mmd|collapse=true}`로 접히며, 백틱 펜스 없이 본문만 들어가는지 확인한다
 9. 파일 변환 결과 하단에 `MarkDown 원본문서` 섹션과 `[파일명|^파일명]` 첨부 링크가 있는지 확인한다
 10. Confluence 이관용 원본에서 인라인 코드 백틱을 남발하지 않았는지 확인한다
 11. URL, jar 파일명, 와일드카드 경로가 Confluence 렌더링에서 깨지지 않는 형태인지 확인한다
