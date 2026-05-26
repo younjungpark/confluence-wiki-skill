@@ -80,7 +80,27 @@ def confluence_link_ref(text, target):
         if title_match:
             target = title_match.group(1)
 
+    attachment_name = markdown_attachment_link_name(target)
+    if attachment_name:
+        return f'[{text}|^{attachment_name}]'
+
     return f'[{text}|{target}]'
+
+def markdown_attachment_link_name(target):
+    if re.match(r'^[a-zA-Z][a-zA-Z0-9+.-]*:', target):
+        return None
+    if target.startswith(('/', '#')):
+        return None
+
+    clean_target = target.split('#', 1)[0].split('?', 1)[0].rstrip('/\\')
+    normalized = clean_target.replace('\\', '/')
+    if normalized.startswith('./'):
+        normalized = normalized[2:]
+    if '/' in normalized:
+        return None
+    if normalized.lower().endswith(('.md', '.markdown')):
+        return normalized
+    return None
 
 def slugify_for_filename(text):
     parenthetical_matches = re.findall(r'\(([^)]+)\)', text)

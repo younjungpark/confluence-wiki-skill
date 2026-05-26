@@ -219,20 +219,30 @@ flowchart TD
         self.assertEqual(convert_to_confluence("[Google](https://google.com)").strip(), "[Google|https://google.com]")
 
     def test_relative_markdown_link_conversion(self):
-        """Relative Markdown links should become Confluence link syntax."""
+        """Relative Markdown file links should become Confluence attachment links."""
         result = convert_to_confluence("[Overview](dataapi-docker-hub-repository-overview.md)")
-        self.assertEqual(result.strip(), "[Overview|dataapi-docker-hub-repository-overview.md]")
+        self.assertEqual(result.strip(), "[Overview|^dataapi-docker-hub-repository-overview.md]")
+
+    def test_dot_relative_markdown_link_conversion(self):
+        """Dot-relative Markdown file links should become Confluence attachment links."""
+        result = convert_to_confluence("[Overview](./dataapi-docker-hub-repository-overview.md)")
+        self.assertEqual(result.strip(), "[Overview|^dataapi-docker-hub-repository-overview.md]")
 
     def test_relative_markdown_link_in_numbered_list_conversion(self):
         """Relative links in numbered list items should not remain as raw Markdown."""
         input_md = "3. Write 탭에 [dataapi-docker-hub-repository-overview.md](dataapi-docker-hub-repository-overview.md) 파일"
         result = convert_to_confluence(input_md)
         self.assertIn(
-            "# Write 탭에 [dataapi-docker-hub-repository-overview.md|dataapi-docker-hub-repository-overview.md] 파일",
+            "# Write 탭에 [dataapi-docker-hub-repository-overview.md|^dataapi-docker-hub-repository-overview.md] 파일",
             result,
         )
         self.assertNotIn("\\[dataapi-docker-hub-repository-overview.md]", result)
         self.assertNotIn("](dataapi-docker-hub-repository-overview.md)", result)
+
+    def test_relative_path_markdown_link_stays_regular_link(self):
+        """Relative paths with directories are not assumed to be same-page attachments."""
+        result = convert_to_confluence("[Spec](../product-specs/sql-api-contract.md)")
+        self.assertEqual(result.strip(), "[Spec|../product-specs/sql-api-contract.md]")
 
     def test_image_conversion_to_attachment_markup(self):
         """Markdown images should become Confluence attachment image markup."""

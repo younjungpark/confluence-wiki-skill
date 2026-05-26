@@ -37,7 +37,7 @@ python tests/test_converter.py
 - 금지: `{code:json}`, `{code:yaml}`
 - 번호 목록 + 코드블록: 번호 항목 바로 아래 코드블록이 오면 Confluence 표시 안정성을 위해 `1)`, `2)` 텍스트 번호를 사용
 - 테이블 헤더: `|| Header ||`
-- 링크: `[Text](URL)` -> `[Text|URL]`
+- 링크: `[Text](URL)` -> `[Text|URL]`. 같은 페이지에 첨부할 로컬 Markdown 파일 링크(`[Text](file.md)`, `[Text](./file.md)`)는 `[Text|^file.md]` 첨부 링크로 변환한다.
 - 인라인 코드: `` `text` `` -> 평문으로 변환한다. Confluence Wiki 문법과 충돌하는 리터럴은 원본 Markdown에서 코드 블록이나 문장 표현으로 분리한다.
 - 원본 Markdown 링크 섹션: 파일 변환 결과 하단에 `h2. MarkDown 원본문서`와 `[파일명|^파일명]`을 자동 추가한다
 - 이미지: `![Alt](images/foo.png)` -> `!foo.png|width=900!`로 변환한다. 이미지는 Confluence 페이지 첨부파일로 수동 업로드한다.
