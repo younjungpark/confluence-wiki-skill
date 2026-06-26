@@ -38,6 +38,12 @@ class TestMdToConfluence(unittest.TestCase):
         self.assertEqual(convert_to_confluence("**Bold**").strip(), "*Bold*")
         self.assertEqual(convert_to_confluence("Text**Bold**Text").strip(), "Text *Bold* Text")
 
+    def test_inline_code_escapes_confluence_emoticons(self):
+        """Inline code should not become Confluence emoticons after backticks are removed."""
+        result = convert_to_confluence("nested scalar subquery는 `cast(?)` 형태로 타입을 보강한다.")
+        self.assertIn("cast\\(?)", result)
+        self.assertNotIn("cast(?)", result)
+
     def test_basic_lists(self):
         """Test Basic List Conversion"""
         self.assertEqual(convert_to_confluence("* Item 1").strip(), "* Item 1")
@@ -269,7 +275,7 @@ flowchart TD
         """Inline code should become plain text without Markdown backticks or Confluence styling."""
         input_md = '* `INSERT INTO T (INT_COL) VALUES (?)` + `"123"`: 일반 scalar 경로'
         result = convert_to_confluence(input_md)
-        self.assertIn('* INSERT INTO T (INT_COL) VALUES (?) + "123": 일반 scalar 경로', result)
+        self.assertIn('* INSERT INTO T (INT_COL) VALUES \\(?) + "123": 일반 scalar 경로', result)
         self.assertNotIn('{{', result)
 
     def test_inline_code_does_not_add_visible_escape_for_hyphen(self):

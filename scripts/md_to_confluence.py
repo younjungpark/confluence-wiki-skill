@@ -181,7 +181,7 @@ def process_inline_formatting(text):
     text = re.sub(r'(?<!\\)(?<!\})\}(?!\})', r'\}', text)
     text = re.sub(r'(?<!\\)\[(?!(?:https?://|[^\]]+\|))', r'\[', text)
     
-    return text
+    return escape_confluence_emoticons(text)
 
 def is_markdown_list_line(text):
     return re.match(r'^\s*(\d+\.\s+|[-*]\s+).+$', text) is not None
