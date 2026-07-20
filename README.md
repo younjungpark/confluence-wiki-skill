@@ -54,6 +54,12 @@ To provide an explicit output file:
 python scripts/md_to_confluence.py <INPUT_FILE> <OUTPUT_FILE>
 ```
 
+The source Markdown attachment-link section is disabled by default. Include it explicitly with:
+
+```bash
+python scripts/md_to_confluence.py <INPUT_FILE> <OUTPUT_FILE> --include-markdown-source
+```
+
 ## Example
 
 ```bash

@@ -309,8 +309,8 @@ flowchart TD
         self.assertIn("Text Before", result)
         self.assertIn("Text After", result)
 
-    def test_convert_file_appends_markdown_source_attachment_link(self):
-        """File conversion should append a Confluence attachment link to the source Markdown."""
+    def test_convert_file_omits_markdown_source_attachment_link_by_default(self):
+        """File conversion should omit the source Markdown attachment link by default."""
         import tempfile
         with tempfile.TemporaryDirectory() as temp_dir:
             input_path = os.path.join(temp_dir, 'configuration-matrix.md')
@@ -318,6 +318,21 @@ flowchart TD
             with open(input_path, 'w', encoding='utf-8') as f:
                 f.write('# 설정 매트릭스\n')
             convert_file(input_path, output_path)
+            with open(output_path, 'r', encoding='utf-8') as f:
+                result = f.read()
+
+        self.assertNotIn('h2. MarkDown 원본문서', result)
+        self.assertNotIn('[configuration-matrix.md|^configuration-matrix.md]', result)
+
+    def test_convert_file_appends_markdown_source_attachment_link_when_enabled(self):
+        """File conversion should append the source Markdown attachment link when enabled."""
+        import tempfile
+        with tempfile.TemporaryDirectory() as temp_dir:
+            input_path = os.path.join(temp_dir, 'configuration-matrix.md')
+            output_path = os.path.join(temp_dir, 'configuration-matrix.wiki')
+            with open(input_path, 'w', encoding='utf-8') as f:
+                f.write('# 설정 매트릭스\n')
+            convert_file(input_path, output_path, include_markdown_source=True)
             with open(output_path, 'r', encoding='utf-8') as f:
                 result = f.read()
 

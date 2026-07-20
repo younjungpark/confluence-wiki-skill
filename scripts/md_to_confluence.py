@@ -1,6 +1,7 @@
-import sys
+import argparse
 import re
 import os
+import sys
 
 def calculate_list_level(indent):
     return (indent // 2) + 1
@@ -495,15 +496,14 @@ def markdown_source_section(input_file):
         return ''
     return f'\n\nh2. MarkDown 원본문서\n\n[{file_name}|^{file_name}]'
 
-def convert_file(input_file, output_file):
+def convert_file(input_file, output_file, include_markdown_source=False):
     if not os.path.exists(input_file): return
     with open(input_file, 'r', encoding='utf-8') as f:
         content = f.read()
     source_base_name = os.path.splitext(os.path.basename(input_file))[0]
     converted = convert_to_confluence(content, source_base_name).rstrip()
-    source_section = markdown_source_section(input_file)
-    if source_section:
-        converted += source_section
+    if include_markdown_source:
+        converted += markdown_source_section(input_file)
     converted += '\n'
     with open(output_file, 'w', encoding='utf-8') as f:
         f.write(converted)
@@ -511,7 +511,14 @@ def convert_file(input_file, output_file):
 
 if __name__ == "__main__":
     if sys.stdout.encoding != 'utf-8': sys.stdout.reconfigure(encoding='utf-8')
-    input_file = sys.argv[1]
-    file_no_ext = os.path.splitext(input_file)[0]
-    output_file = sys.argv[2] if len(sys.argv) >= 3 else f"{file_no_ext}.wiki"
-    convert_file(input_file, output_file)
+    parser = argparse.ArgumentParser(description='Convert Markdown to Confluence Wiki markup.')
+    parser.add_argument('input_file')
+    parser.add_argument('output_file', nargs='?')
+    parser.add_argument(
+        '--include-markdown-source',
+        action='store_true',
+        help='append a Confluence attachment link to the source Markdown',
+    )
+    args = parser.parse_args()
+    output_file = args.output_file or f"{os.path.splitext(args.input_file)[0]}.wiki"
+    convert_file(args.input_file, output_file, args.include_markdown_source)

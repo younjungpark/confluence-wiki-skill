@@ -15,9 +15,12 @@ python scripts/md_to_confluence.py <INPUT_FILE>
 
 # 출력 파일명 지정
 python scripts/md_to_confluence.py <INPUT_FILE> <OUTPUT_FILE>
+
+# 원본 Markdown 첨부 링크 섹션 포함
+python scripts/md_to_confluence.py <INPUT_FILE> <OUTPUT_FILE> --include-markdown-source
 ```
 
-파일 변환 결과 하단에는 원본 Markdown 첨부 링크 섹션을 자동으로 추가한다. Markdown 원본은 Confluence 페이지에 같은 파일명으로 수동 첨부하고, 링크 문법은 `[파일명|^파일명]`을 사용한다.
+원본 Markdown 첨부 링크 섹션은 기본적으로 생성하지 않는다. 사용자가 요청한 경우에만 `--include-markdown-source`를 지정한다. 이 옵션을 지정하면 결과 하단에 `h2. MarkDown 원본문서`와 `[파일명|^파일명]`을 추가한다. Markdown 원본은 Confluence 페이지에 같은 파일명으로 수동 첨부한다.
 
 ## 테스트
 
@@ -39,7 +42,7 @@ python tests/test_converter.py
 - 테이블 헤더: `|| Header ||`
 - 링크: `[Text](URL)` -> `[Text|URL]`. 같은 페이지에 첨부할 로컬 Markdown 파일 링크(`[Text](file.md)`, `[Text](./file.md)`)는 `[Text|^file.md]` 첨부 링크로 변환한다.
 - 인라인 코드: `` `text` `` -> 평문으로 변환한다. Confluence Wiki 문법과 충돌하는 리터럴은 원본 Markdown에서 코드 블록이나 문장 표현으로 분리한다.
-- 원본 Markdown 링크 섹션: 파일 변환 결과 하단에 `h2. MarkDown 원본문서`와 `[파일명|^파일명]`을 자동 추가한다
+- 원본 Markdown 링크 섹션: 기본값은 `false`이다. `--include-markdown-source`를 지정한 경우에만 파일 변환 결과 하단에 `h2. MarkDown 원본문서`와 `[파일명|^파일명]`을 추가한다
 - 이미지: `![Alt](images/foo.png)` -> `!foo.png|width=900!`로 변환한다. 이미지는 Confluence 페이지 첨부파일로 수동 업로드한다.
 - 수평선 `---`: 제거
 - 이모지: 제거
@@ -73,6 +76,6 @@ Confluence Wiki로 옮길 목적의 Markdown은 일반 Markdown 렌더링보다 
 6. Markdown 이미지가 `!파일명.png|width=900!` 형태로 변환되었는지 확인한다
 7. 번호 목록 바로 아래 코드블록 구간이 `1)`, `2)` 텍스트 번호로 출력되는지 확인한다
 8. Mermaid 코드 블록 앞에 이미지 태그가 있고, `{code:title=파일명.mmd|collapse=true}`로 접히며, 백틱 펜스 없이 본문만 들어가는지 확인한다
-9. 파일 변환 결과 하단에 `MarkDown 원본문서` 섹션과 `[파일명|^파일명]` 첨부 링크가 있는지 확인한다
+9. `--include-markdown-source` 지정 여부와 결과 하단의 `MarkDown 원본문서` 섹션 생성 여부가 일치하는지 확인한다
 10. Confluence 이관용 원본에서 인라인 코드 백틱을 남발하지 않았는지 확인한다
 11. URL, jar 파일명, 와일드카드 경로가 Confluence 렌더링에서 깨지지 않는 형태인지 확인한다
