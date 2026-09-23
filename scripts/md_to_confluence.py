@@ -300,8 +300,8 @@ def convert_to_confluence(content, source_base_name='mermaid'):
                         container_in_code = not container_in_code
                     else:
                         if content_line.strip():
-                            content_line = remove_emojis(content_line)
                             if not container_in_code:
+                                content_line = remove_emojis(content_line)
                                 # Lists inside boxes must also be converted to Confluence list syntax.
                                 numbered_match = re.match(r'^(\s*)(\d+)\.\s+(.+)$', content_line)
                                 if numbered_match:

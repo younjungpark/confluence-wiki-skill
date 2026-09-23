@@ -31,6 +31,14 @@ python scripts/md_to_confluence.py <INPUT_FILE> <OUTPUT_FILE> --include-markdown
 python tests/test_converter.py
 ```
 
+## Skill 품질 평가
+
+변환기나 Skill 지침 변경 후 품질과 회귀를 측정할 때는 [eval suite](evals/README.md)를 참고한다. 기존 unit test와 문서 dataset을 함께 평가하며 전체 case 수, pass/fail, pass rate, 실패 원인과 baseline 대비 변화를 출력한다.
+
+```bash
+python -B evals/run_eval.py --baseline evals/baseline.json --report /tmp/confluence-eval.json
+```
+
 ## 핵심 변환 규칙
 
 - 제목: `#`, `##`, `###` -> `h1.`, `h2.`, `h3.`

@@ -1,0 +1,280 @@
+{
+  "version": 1,
+  "cases": [
+    {
+      "id": "headings",
+      "category": "syntax",
+      "filename": "headings.md",
+      "prompt": "headings.md을 Confluence Wiki markup으로 변환하여 headings.wiki에 저장해줘. Markdown 원본 첨부 링크는 추가하지 말아줘.",
+      "markdown": "# 제목\n## 설정\n### 상세\n#### 하위\n##### 다섯\n###### 여섯",
+      "expected": "h1. 제목\nh2. 설정\nh3. 상세\nh4. 하위\nh5. 다섯\nh6. 여섯\n"
+    },
+    {
+      "id": "bold",
+      "category": "syntax",
+      "filename": "bold.md",
+      "prompt": "bold.md을 Confluence Wiki markup으로 변환하여 bold.wiki에 저장해줘. Markdown 원본 첨부 링크는 추가하지 말아줘.",
+      "markdown": "앞**강조**뒤",
+      "expected": "앞 *강조* 뒤\n"
+    },
+    {
+      "id": "inline",
+      "category": "syntax",
+      "filename": "inline.md",
+      "prompt": "inline.md을 Confluence Wiki markup으로 변환하여 inline.wiki에 저장해줘. Markdown 원본 첨부 링크는 추가하지 말아줘.",
+      "markdown": "`DATA_API_ACCESS`와 `cast(?)`",
+      "expected": "DATA_API_ACCESS와 cast\\(?)\n"
+    },
+    {
+      "id": "bullets",
+      "category": "syntax",
+      "filename": "bullets.md",
+      "prompt": "bullets.md을 Confluence Wiki markup으로 변환하여 bullets.wiki에 저장해줘. Markdown 원본 첨부 링크는 추가하지 말아줘.",
+      "markdown": "- 상위\n  - 하위\n    - 끝",
+      "expected": "* 상위\n** 하위\n*** 끝\n"
+    },
+    {
+      "id": "mixed-list",
+      "category": "syntax",
+      "filename": "mixed-list.md",
+      "prompt": "mixed-list.md을 Confluence Wiki markup으로 변환하여 mixed-list.wiki에 저장해줘. Markdown 원본 첨부 링크는 추가하지 말아줘.",
+      "markdown": "- 준비\n  1. 실행\n  2. 종료",
+      "expected": "* 준비\n*# 실행\n*# 종료\n"
+    },
+    {
+      "id": "numbered",
+      "category": "syntax",
+      "filename": "numbered.md",
+      "prompt": "numbered.md을 Confluence Wiki markup으로 변환하여 numbered.wiki에 저장해줘. Markdown 원본 첨부 링크는 추가하지 말아줘.",
+      "markdown": "1. 시작\n\n2. 완료",
+      "expected": "# 시작\n# 완료\n"
+    },
+    {
+      "id": "table",
+      "category": "syntax",
+      "filename": "table.md",
+      "prompt": "table.md을 Confluence Wiki markup으로 변환하여 table.wiki에 저장해줘. Markdown 원본 첨부 링크는 추가하지 말아줘.",
+      "markdown": "| 이름 | 값 |\n|:---|---:|\n| 키 | 42 |",
+      "expected": "|| 이름 || 값 ||\n| 키 | 42 |\n"
+    },
+    {
+      "id": "links",
+      "category": "syntax",
+      "filename": "links.md",
+      "prompt": "links.md을 Confluence Wiki markup으로 변환하여 links.wiki에 저장해줘. Markdown 원본 첨부 링크는 추가하지 말아줘.",
+      "markdown": "[웹](https://example.com/a-b)\n[원본](./guide.md)\n[상위](../guide.md)",
+      "expected": "[웹|https://example.com/a-b]\n[원본|^guide.md]\n[상위|../guide.md]\n"
+    },
+    {
+      "id": "image",
+      "category": "syntax",
+      "filename": "image.md",
+      "prompt": "image.md을 Confluence Wiki markup으로 변환하여 image.wiki에 저장해줘. Markdown 원본 첨부 링크는 추가하지 말아줘.",
+      "markdown": "![도표](images/chart.png)",
+      "expected": "!chart.png|width=900!\n"
+    },
+    {
+      "id": "windows-image",
+      "category": "edge",
+      "filename": "windows-image.md",
+      "prompt": "windows-image.md을 Confluence Wiki markup으로 변환하여 windows-image.wiki에 저장해줘. Markdown 원본 첨부 링크는 추가하지 말아줘.",
+      "markdown": "![도표](C:\\work\\images\\chart.png)",
+      "expected": "!chart.png|width=900!\n"
+    },
+    {
+      "id": "code-python",
+      "category": "syntax",
+      "filename": "code-python.md",
+      "prompt": "code-python.md을 Confluence Wiki markup으로 변환하여 code-python.wiki에 저장해줘. Markdown 원본 첨부 링크는 추가하지 말아줘.",
+      "markdown": "```python\na_b = \"{x}\"\n```",
+      "expected": "{code:language=python}\na_b = \"{x}\"\n{code}\n"
+    },
+    {
+      "id": "code-sql",
+      "category": "syntax",
+      "filename": "code-sql.md",
+      "prompt": "code-sql.md을 Confluence Wiki markup으로 변환하여 code-sql.wiki에 저장해줘. Markdown 원본 첨부 링크는 추가하지 말아줘.",
+      "markdown": "```SQL\na_b = \"{x}\"\n```",
+      "expected": "{code:language=sql}\na_b = \"{x}\"\n{code}\n"
+    },
+    {
+      "id": "code-xml",
+      "category": "syntax",
+      "filename": "code-xml.md",
+      "prompt": "code-xml.md을 Confluence Wiki markup으로 변환하여 code-xml.wiki에 저장해줘. Markdown 원본 첨부 링크는 추가하지 말아줘.",
+      "markdown": "```xml\na_b = \"{x}\"\n```",
+      "expected": "{code:language=html/xml}\na_b = \"{x}\"\n{code}\n"
+    },
+    {
+      "id": "code-json",
+      "category": "syntax",
+      "filename": "code-json.md",
+      "prompt": "code-json.md을 Confluence Wiki markup으로 변환하여 code-json.wiki에 저장해줘. Markdown 원본 첨부 링크는 추가하지 말아줘.",
+      "markdown": "```json\na_b = \"{x}\"\n```",
+      "expected": "{code}\na_b = \"{x}\"\n{code}\n"
+    },
+    {
+      "id": "code-yaml",
+      "category": "syntax",
+      "filename": "code-yaml.md",
+      "prompt": "code-yaml.md을 Confluence Wiki markup으로 변환하여 code-yaml.wiki에 저장해줘. Markdown 원본 첨부 링크는 추가하지 말아줘.",
+      "markdown": "```yaml\na_b = \"{x}\"\n```",
+      "expected": "{code}\na_b = \"{x}\"\n{code}\n"
+    },
+    {
+      "id": "code-unknown",
+      "category": "syntax",
+      "filename": "code-unknown.md",
+      "prompt": "code-unknown.md을 Confluence Wiki markup으로 변환하여 code-unknown.wiki에 저장해줘. Markdown 원본 첨부 링크는 추가하지 말아줘.",
+      "markdown": "```unknown\na_b = \"{x}\"\n```",
+      "expected": "{code}\na_b = \"{x}\"\n{code}\n"
+    },
+    {
+      "id": "box-info",
+      "category": "syntax",
+      "filename": "box-info.md",
+      "prompt": "box-info.md을 Confluence Wiki markup으로 변환하여 box-info.wiki에 저장해줘. Markdown 원본 첨부 링크는 추가하지 말아줘.",
+      "markdown": "> **Info**\n> 설명",
+      "expected": "{info:title=Info}\n설명\n{info}\n"
+    },
+    {
+      "id": "box-warning",
+      "category": "syntax",
+      "filename": "box-warning.md",
+      "prompt": "box-warning.md을 Confluence Wiki markup으로 변환하여 box-warning.wiki에 저장해줘. Markdown 원본 첨부 링크는 추가하지 말아줘.",
+      "markdown": "> **Warning**\n> 설명",
+      "expected": "{warning:title=Warning}\n설명\n{warning}\n"
+    },
+    {
+      "id": "box-note",
+      "category": "syntax",
+      "filename": "box-note.md",
+      "prompt": "box-note.md을 Confluence Wiki markup으로 변환하여 box-note.wiki에 저장해줘. Markdown 원본 첨부 링크는 추가하지 말아줘.",
+      "markdown": "> **[참고]**\n> 설명",
+      "expected": "{note:title=참고}\n설명\n{note}\n"
+    },
+    {
+      "id": "quote",
+      "category": "syntax",
+      "filename": "quote.md",
+      "prompt": "quote.md을 Confluence Wiki markup으로 변환하여 quote.wiki에 저장해줘. Markdown 원본 첨부 링크는 추가하지 말아줘.",
+      "markdown": "> 인용\n>\n> 두 번째",
+      "expected": "{quote}\n인용\n\n두 번째\n{quote}\n"
+    },
+    {
+      "id": "alert",
+      "category": "edge",
+      "filename": "alert.md",
+      "prompt": "alert.md을 Confluence Wiki markup으로 변환하여 alert.wiki에 저장해줘. Markdown 원본 첨부 링크는 추가하지 말아줘.",
+      "markdown": "> [!TIP]\n> 안내",
+      "expected": "{tip}\n안내\n{tip}\n"
+    },
+    {
+      "id": "empty",
+      "category": "edge",
+      "filename": "empty.md",
+      "prompt": "empty.md을 Confluence Wiki markup으로 변환하여 empty.wiki에 저장해줘. Markdown 원본 첨부 링크는 추가하지 말아줘.",
+      "markdown": "",
+      "expected": "\n"
+    },
+    {
+      "id": "crlf",
+      "category": "edge",
+      "filename": "crlf.md",
+      "prompt": "crlf.md을 Confluence Wiki markup으로 변환하여 crlf.wiki에 저장해줘. Markdown 원본 첨부 링크는 추가하지 말아줘.",
+      "markdown": "# 제목\r\n본문\r\n",
+      "expected": "h1. 제목\n본문\n"
+    },
+    {
+      "id": "no-final-newline",
+      "category": "edge",
+      "filename": "no-final-newline.md",
+      "prompt": "no-final-newline.md을 Confluence Wiki markup으로 변환하여 no-final-newline.wiki에 저장해줘. Markdown 원본 첨부 링크는 추가하지 말아줘.",
+      "markdown": "마지막 줄",
+      "expected": "마지막 줄\n"
+    },
+    {
+      "id": "unicode",
+      "category": "edge",
+      "filename": "unicode.md",
+      "prompt": "unicode.md을 Confluence Wiki markup으로 변환하여 unicode.wiki에 저장해줘. Markdown 원본 첨부 링크는 추가하지 말아줘.",
+      "markdown": "한글 café 中文 🐳",
+      "expected": "한글 café 中文\n"
+    },
+    {
+      "id": "rule",
+      "category": "syntax",
+      "filename": "rule.md",
+      "prompt": "rule.md을 Confluence Wiki markup으로 변환하여 rule.wiki에 저장해줘. Markdown 원본 첨부 링크는 추가하지 말아줘.",
+      "markdown": "앞\n---\n뒤",
+      "expected": "앞\n뒤\n"
+    },
+    {
+      "id": "literal-code",
+      "category": "edge",
+      "filename": "literal-code.md",
+      "prompt": "literal-code.md을 Confluence Wiki markup으로 변환하여 literal-code.wiki에 저장해줘. Markdown 원본 첨부 링크는 추가하지 말아줘.",
+      "markdown": "```text\n# 제목\n**굵게** [링크](a.md)\n{info} 🐳\n```",
+      "expected": "{code}\n# 제목\n**굵게** [링크](a.md)\n{info} 🐳\n{code}\n"
+    },
+    {
+      "id": "source-enabled",
+      "category": "workflow",
+      "filename": "source-enabled.md",
+      "prompt": "source-enabled.md을 Confluence Wiki markup으로 변환하여 source-enabled.wiki에 저장해줘. Markdown 원본 첨부 링크도 포함해줘.",
+      "markdown": "# 안내",
+      "expected": "h1. 안내\n\nh2. MarkDown 원본문서\n\n[source-enabled.md|^source-enabled.md]\n",
+      "include_markdown_source": true
+    },
+    {
+      "id": "explicit-output",
+      "category": "workflow",
+      "filename": "explicit-output.md",
+      "prompt": "explicit-output.md을 Confluence Wiki markup으로 변환하여 custom.wiki에 저장해줘. Markdown 원본 첨부 링크는 추가하지 말아줘.",
+      "markdown": "# 안내",
+      "expected": "h1. 안내\n",
+      "explicit_output": true
+    },
+    {
+      "id": "number-code",
+      "category": "compound",
+      "filename": "number-code.md",
+      "prompt": "number-code.md을 Confluence Wiki markup으로 변환하여 number-code.wiki에 저장해줘. Markdown 원본 첨부 링크는 추가하지 말아줘.",
+      "markdown": "1. 실행\n\n```bash\necho hello\n```\n\n2. 확인",
+      "expected": "1) 실행\n\n{code:language=bash}\necho hello\n{code}\n\n# 확인\n"
+    },
+    {
+      "id": "box-list-code",
+      "category": "compound",
+      "filename": "box-list-code.md",
+      "prompt": "box-list-code.md을 Confluence Wiki markup으로 변환하여 box-list-code.wiki에 저장해줘. Markdown 원본 첨부 링크는 추가하지 말아줘.",
+      "markdown": "> **Info**\n> 1. 실행\n>    - 세부\n> ```sql\n> SELECT 1;\n> ```",
+      "expected": "{info:title=Info}\n# 실행\n#* 세부\n{code}\nSELECT 1;\n{code}\n{info}\n"
+    },
+    {
+      "id": "mermaid-duplicate",
+      "category": "compound",
+      "filename": "mermaid-duplicate.md",
+      "prompt": "mermaid-duplicate.md을 Confluence Wiki markup으로 변환하여 mermaid-duplicate.wiki에 저장해줘. Markdown 원본 첨부 링크는 추가하지 말아줘.",
+      "markdown": "## Pool\n```mermaid\nflowchart TD\n A --> B\n```\n```mermaid\nflowchart TD\n B --> C\n```",
+      "expected": "h2. Pool\n!mermaid-duplicate-pool.png|width=900!\n\n{code:title=mermaid-duplicate-pool.mmd|collapse=true}\nflowchart TD\n A --> B\n{code}\n!mermaid-duplicate-pool-2.png|width=900!\n\n{code:title=mermaid-duplicate-pool-2.mmd|collapse=true}\nflowchart TD\n B --> C\n{code}\n"
+    },
+    {
+      "id": "release-guide",
+      "category": "compound",
+      "filename": "release-guide.md",
+      "prompt": "release-guide.md을 Confluence Wiki markup으로 변환하여 release-guide.wiki에 저장해줘. Markdown 원본 첨부 링크는 추가하지 말아줘.",
+      "markdown": "# 배포 안내\n\n> **Warning**\n> 접속을 종료한다.\n\n## 설정\n| 이름 | 값 |\n|---|---|\n| role | `DATA_API_ACCESS` |\n\n1. 설치\n\n```bash\njava -jar data-api.jar\n```\n\n[상세](guide.md)\n![구성](images/deploy.png)",
+      "expected": "h1. 배포 안내\n\n{warning:title=Warning}\n접속을 종료한다.\n{warning}\n\nh2. 설정\n\n|| 이름 || 값 ||\n| role | DATA_API_ACCESS |\n\n1) 설치\n\n{code:language=bash}\njava -jar data-api.jar\n{code}\n\n[상세|^guide.md]\n!deploy.png|width=900!\n"
+    },
+    {
+      "id": "box-code-preservation",
+      "category": "edge",
+      "filename": "box-code-preservation.md",
+      "prompt": "box-code-preservation.md을 Confluence Wiki markup으로 변환하여 box-code-preservation.wiki에 저장해줘. Markdown 원본 첨부 링크는 추가하지 말아줘.",
+      "markdown": "> **Info**\n> ```text\n> print(\"🐳\")\n> ```",
+      "expected": "{info:title=Info}\n{code}\nprint(\"🐳\")\n{code}\n{info}\n",
+      "rationale": "코드 블록 내부 문자열은 박스 안에서도 보존해야 한다."
+    }
+  ]
+}

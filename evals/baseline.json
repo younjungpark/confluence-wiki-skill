@@ -1,0 +1,473 @@
+{
+  "schema_version": 1,
+  "mode": "cli",
+  "contract_sha256": "90ef38c86c6233dd6bd4c97b98876d7baeac16d5d22773c24b08864bd98c18fb",
+  "converter_sha256": "54c01fa023f0f38631332827a4d9a7bf283688b2f7e8f2d7c3a5f0df8b11deb4",
+  "skill_sha256": "c0ae1df80e43a047793d981d578c4887ca1554479aa3b9609b90b418e62dd165",
+  "summary": {
+    "total": 65,
+    "passed": 64,
+    "failed": 1,
+    "pass_rate": 98.46
+  },
+  "categories": {
+    "compound": {
+      "total": 4,
+      "passed": 4,
+      "failed": 0,
+      "pass_rate": 100.0
+    },
+    "edge": {
+      "total": 8,
+      "passed": 7,
+      "failed": 1,
+      "pass_rate": 87.5
+    },
+    "existing-unit": {
+      "total": 31,
+      "passed": 31,
+      "failed": 0,
+      "pass_rate": 100.0
+    },
+    "syntax": {
+      "total": 20,
+      "passed": 20,
+      "failed": 0,
+      "pass_rate": 100.0
+    },
+    "workflow": {
+      "total": 2,
+      "passed": 2,
+      "failed": 0,
+      "pass_rate": 100.0
+    }
+  },
+  "cases": [
+    {
+      "id": "unit:eval_existing_tests.TestMdToConfluence.test_basic_lists",
+      "category": "existing-unit",
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "id": "unit:eval_existing_tests.TestMdToConfluence.test_bold_text",
+      "category": "existing-unit",
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "id": "unit:eval_existing_tests.TestMdToConfluence.test_box_content_with_code_block",
+      "category": "existing-unit",
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "id": "unit:eval_existing_tests.TestMdToConfluence.test_box_content_with_lists",
+      "category": "existing-unit",
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "id": "unit:eval_existing_tests.TestMdToConfluence.test_bullet_lines_under_numbered_list_keep_numbering",
+      "category": "existing-unit",
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "id": "unit:eval_existing_tests.TestMdToConfluence.test_convert_file_appends_markdown_source_attachment_link_when_enabled",
+      "category": "existing-unit",
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "id": "unit:eval_existing_tests.TestMdToConfluence.test_convert_file_omits_markdown_source_attachment_link_by_default",
+      "category": "existing-unit",
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "id": "unit:eval_existing_tests.TestMdToConfluence.test_dot_relative_markdown_link_conversion",
+      "category": "existing-unit",
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "id": "unit:eval_existing_tests.TestMdToConfluence.test_generic_blockquote_conversion",
+      "category": "existing-unit",
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "id": "unit:eval_existing_tests.TestMdToConfluence.test_heading_with_markdown_link_conversion",
+      "category": "existing-unit",
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "id": "unit:eval_existing_tests.TestMdToConfluence.test_headings",
+      "category": "existing-unit",
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "id": "unit:eval_existing_tests.TestMdToConfluence.test_horizontal_rule_removal",
+      "category": "existing-unit",
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "id": "unit:eval_existing_tests.TestMdToConfluence.test_image_conversion_to_attachment_markup",
+      "category": "existing-unit",
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "id": "unit:eval_existing_tests.TestMdToConfluence.test_image_conversion_with_absolute_windows_path",
+      "category": "existing-unit",
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "id": "unit:eval_existing_tests.TestMdToConfluence.test_info_box_detection",
+      "category": "existing-unit",
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "id": "unit:eval_existing_tests.TestMdToConfluence.test_inline_code_does_not_add_visible_escape_for_hyphen",
+      "category": "existing-unit",
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "id": "unit:eval_existing_tests.TestMdToConfluence.test_inline_code_does_not_add_visible_escape_for_underscore",
+      "category": "existing-unit",
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "id": "unit:eval_existing_tests.TestMdToConfluence.test_inline_code_escapes_confluence_emoticons",
+      "category": "existing-unit",
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "id": "unit:eval_existing_tests.TestMdToConfluence.test_inline_code_in_box",
+      "category": "existing-unit",
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "id": "unit:eval_existing_tests.TestMdToConfluence.test_inline_code_is_converted_to_plain_text",
+      "category": "existing-unit",
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "id": "unit:eval_existing_tests.TestMdToConfluence.test_inline_code_url_keeps_hyphen_without_visible_escape",
+      "category": "existing-unit",
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "id": "unit:eval_existing_tests.TestMdToConfluence.test_link_conversion",
+      "category": "existing-unit",
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "id": "unit:eval_existing_tests.TestMdToConfluence.test_mermaid_attachment_name_uses_source_and_nearest_non_generic_heading",
+      "category": "existing-unit",
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "id": "unit:eval_existing_tests.TestMdToConfluence.test_mermaid_code_block_is_collapsed_without_fence_markers",
+      "category": "existing-unit",
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "id": "unit:eval_existing_tests.TestMdToConfluence.test_nested_bullet_list_three_levels",
+      "category": "existing-unit",
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "id": "unit:eval_existing_tests.TestMdToConfluence.test_numbered_list_nested_under_bullet",
+      "category": "existing-unit",
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "id": "unit:eval_existing_tests.TestMdToConfluence.test_numbered_list_with_code_block_keeps_visible_numbers",
+      "category": "existing-unit",
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "id": "unit:eval_existing_tests.TestMdToConfluence.test_relative_markdown_link_conversion",
+      "category": "existing-unit",
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "id": "unit:eval_existing_tests.TestMdToConfluence.test_relative_markdown_link_in_numbered_list_conversion",
+      "category": "existing-unit",
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "id": "unit:eval_existing_tests.TestMdToConfluence.test_relative_path_markdown_link_stays_regular_link",
+      "category": "existing-unit",
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "id": "unit:eval_existing_tests.TestMdToConfluence.test_table_conversion",
+      "category": "existing-unit",
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "id": "dataset:headings",
+      "category": "syntax",
+      "status": "PASS",
+      "reasons": [],
+      "output_sha256": "3323d24c9f92168062ea941d402c0b37876bd6e08b7037e921c0e83c1d53db18"
+    },
+    {
+      "id": "dataset:bold",
+      "category": "syntax",
+      "status": "PASS",
+      "reasons": [],
+      "output_sha256": "baf3d197b40039426ceb5d9fda29576bea15fc5062e75a0475fc734b84e1f4ea"
+    },
+    {
+      "id": "dataset:inline",
+      "category": "syntax",
+      "status": "PASS",
+      "reasons": [],
+      "output_sha256": "29afba6761cd21746a60127ab7e36ffbac7c7d8861fe21289fc095daeebb8491"
+    },
+    {
+      "id": "dataset:bullets",
+      "category": "syntax",
+      "status": "PASS",
+      "reasons": [],
+      "output_sha256": "37ef926774fa6636112fb0928231275f5d8296cbec389c7520e5702f4657ff3d"
+    },
+    {
+      "id": "dataset:mixed-list",
+      "category": "syntax",
+      "status": "PASS",
+      "reasons": [],
+      "output_sha256": "8dc37c3cbaeb213fdbc6dd23068d3fe2568449ffaf937fa9001e6988020e0149"
+    },
+    {
+      "id": "dataset:numbered",
+      "category": "syntax",
+      "status": "PASS",
+      "reasons": [],
+      "output_sha256": "74a9edf2c912d715e2a4114541467a469f78e5c50f50ec70c8d6872733502c54"
+    },
+    {
+      "id": "dataset:table",
+      "category": "syntax",
+      "status": "PASS",
+      "reasons": [],
+      "output_sha256": "8379d83a061c59355661d4cb945f726f257f67d09e8c1a15be01a789940d8b51"
+    },
+    {
+      "id": "dataset:links",
+      "category": "syntax",
+      "status": "PASS",
+      "reasons": [],
+      "output_sha256": "8d316a8d63054822a3c62382b3b41e1c4e010afa501750fe411ec585e33d1571"
+    },
+    {
+      "id": "dataset:image",
+      "category": "syntax",
+      "status": "PASS",
+      "reasons": [],
+      "output_sha256": "ca7cef1f448f2eb6c573d3fe3390385cda79c815949f432d9c233f64690b8507"
+    },
+    {
+      "id": "dataset:windows-image",
+      "category": "edge",
+      "status": "PASS",
+      "reasons": [],
+      "output_sha256": "ca7cef1f448f2eb6c573d3fe3390385cda79c815949f432d9c233f64690b8507"
+    },
+    {
+      "id": "dataset:code-python",
+      "category": "syntax",
+      "status": "PASS",
+      "reasons": [],
+      "output_sha256": "4e5febf557ca440f93d0114dd2add0ca914642dbdbd268627041c65f14864cf1"
+    },
+    {
+      "id": "dataset:code-sql",
+      "category": "syntax",
+      "status": "PASS",
+      "reasons": [],
+      "output_sha256": "ff1d625efedf975ecf9d1e534026bbd2b8485af9661dd023dcd9faaa9e32e7a7"
+    },
+    {
+      "id": "dataset:code-xml",
+      "category": "syntax",
+      "status": "PASS",
+      "reasons": [],
+      "output_sha256": "34fb3c2ef053e2b589b3a12accc62686469ebf0aaa8a3b7b72659414b21a68c5"
+    },
+    {
+      "id": "dataset:code-json",
+      "category": "syntax",
+      "status": "PASS",
+      "reasons": [],
+      "output_sha256": "4966ebd876561f180a20b9298afa8575def59985003483711cd3cf3a40bb2f74"
+    },
+    {
+      "id": "dataset:code-yaml",
+      "category": "syntax",
+      "status": "PASS",
+      "reasons": [],
+      "output_sha256": "4966ebd876561f180a20b9298afa8575def59985003483711cd3cf3a40bb2f74"
+    },
+    {
+      "id": "dataset:code-unknown",
+      "category": "syntax",
+      "status": "PASS",
+      "reasons": [],
+      "output_sha256": "4966ebd876561f180a20b9298afa8575def59985003483711cd3cf3a40bb2f74"
+    },
+    {
+      "id": "dataset:box-info",
+      "category": "syntax",
+      "status": "PASS",
+      "reasons": [],
+      "output_sha256": "c17fc2218ca2e03f1c392be537f7a2888bf797bfad0ea2fd5ca22e31a1a9a386"
+    },
+    {
+      "id": "dataset:box-warning",
+      "category": "syntax",
+      "status": "PASS",
+      "reasons": [],
+      "output_sha256": "d1fc5ecd7c804bbffec005c37c90556fd6b018912e50c19d5304bd6449c6c577"
+    },
+    {
+      "id": "dataset:box-note",
+      "category": "syntax",
+      "status": "PASS",
+      "reasons": [],
+      "output_sha256": "cef3e4a8d7ed238ff3ddf55a25494ec9959f17bb858eed513b189b3ca3d6e1e5"
+    },
+    {
+      "id": "dataset:quote",
+      "category": "syntax",
+      "status": "PASS",
+      "reasons": [],
+      "output_sha256": "223fca3aad51b6577b087d5919b7eeba8b95345cdd99ab5855701753999cd26e"
+    },
+    {
+      "id": "dataset:alert",
+      "category": "edge",
+      "status": "PASS",
+      "reasons": [],
+      "output_sha256": "9acd1be9abc690d960cecb0dfc56dc945836cd3112e1eb24ee3ea11ea49b642d"
+    },
+    {
+      "id": "dataset:empty",
+      "category": "edge",
+      "status": "PASS",
+      "reasons": [],
+      "output_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "id": "dataset:crlf",
+      "category": "edge",
+      "status": "PASS",
+      "reasons": [],
+      "output_sha256": "95b3d2835ec81c9d9fcfd23000ffa888610f37cd5b435f0596d9a3156b467dae"
+    },
+    {
+      "id": "dataset:no-final-newline",
+      "category": "edge",
+      "status": "PASS",
+      "reasons": [],
+      "output_sha256": "d921fcdc8e192e195a16176224a7a2cc163fd9ca2238ae185c5cb8045c842d49"
+    },
+    {
+      "id": "dataset:unicode",
+      "category": "edge",
+      "status": "PASS",
+      "reasons": [],
+      "output_sha256": "4e4c2e16e670d85971c50b16ca183c5263770d202b550155f5025db66380df07"
+    },
+    {
+      "id": "dataset:rule",
+      "category": "syntax",
+      "status": "PASS",
+      "reasons": [],
+      "output_sha256": "69a56cbf6325e42dbf9d4ee05f625f136c75fdda7774d057fce21308fe3e6e0b"
+    },
+    {
+      "id": "dataset:literal-code",
+      "category": "edge",
+      "status": "PASS",
+      "reasons": [],
+      "output_sha256": "6c2da61399e9dcb3a66874cd4c8a669901e4d5a0fab23997c094fcb795260cab"
+    },
+    {
+      "id": "dataset:source-enabled",
+      "category": "workflow",
+      "status": "PASS",
+      "reasons": [],
+      "output_sha256": "550f3f3dd0385c34d3facbbb419a7a00e4883f223093e308cd03902cede4d66f"
+    },
+    {
+      "id": "dataset:explicit-output",
+      "category": "workflow",
+      "status": "PASS",
+      "reasons": [],
+      "output_sha256": "8ce3419751017b7f69df6b5d705ede9d91d4284fdc8eb1e0a87651049c6f07ac"
+    },
+    {
+      "id": "dataset:number-code",
+      "category": "compound",
+      "status": "PASS",
+      "reasons": [],
+      "output_sha256": "0dfd1a1a03d7abd8a4e8d24a528106b59e17e3fea9ea7b0406b72565e5f21fff"
+    },
+    {
+      "id": "dataset:box-list-code",
+      "category": "compound",
+      "status": "PASS",
+      "reasons": [],
+      "output_sha256": "05bdb14fca5cddab6e1b85594931257fe76daf2878c424f613ce1d8f98649ca8"
+    },
+    {
+      "id": "dataset:mermaid-duplicate",
+      "category": "compound",
+      "status": "PASS",
+      "reasons": [],
+      "output_sha256": "756f23f23b29799b696cfb1672beb952d7f8005a4030a1b50edd4ac7e040902a"
+    },
+    {
+      "id": "dataset:release-guide",
+      "category": "compound",
+      "status": "PASS",
+      "reasons": [],
+      "output_sha256": "1e8ec6cdd214dd65f41b474238210ab82abd8a2f4ee47660a60bd20a0bc85cf1"
+    },
+    {
+      "id": "dataset:box-code-preservation",
+      "category": "edge",
+      "status": "FAIL",
+      "reasons": [
+        "전체 출력 불일치\n--- expected\n+++ actual\n@@ -1,5 +1,5 @@\n {info:title=Info}\n {code}\n-print(\"🐳\")\n+print(\"\")\n {code}\n {info}\n"
+      ],
+      "output_sha256": "558001279e9704eddbc169e3627ad286c8bea9526defe76e5d53cf30b92eee4f"
+    }
+  ]
+}
