@@ -341,5 +341,88 @@ flowchart TD
         self.assertNotIn('[configuration-matrix.md^configuration-matrix.md]', result)
 
 
+    def test_italic_text(self):
+        """Markdown italic (*text*) is Confluence italic (_text_), not bold."""
+        self.assertEqual(convert_to_confluence("a *ital* b").strip(), "a _ital_ b")
+        self.assertEqual(convert_to_confluence("*기울임* 과 **굵게**").strip(), "_기울임_ 과  *굵게*")
+
+    def test_italic_does_not_touch_literal_asterisks(self):
+        """Wildcards, arithmetic and inline code must not be read as emphasis."""
+        self.assertEqual(convert_to_confluence("경로는 /actuator/** 이고 파일은 *.log 이다").strip(),
+                         "경로는 /actuator/** 이고 파일은 *.log 이다")
+        self.assertEqual(convert_to_confluence("2 * 3 * 4").strip(), "2 * 3 * 4")
+        self.assertEqual(convert_to_confluence("파일은 `*.log` 와 `*.txt` 이다").strip(), "파일은 *.log 와 *.txt 이다")
+        self.assertEqual(convert_to_confluence("* *강조* 항목").strip(), "* _강조_ 항목")
+
+    def test_strikethrough_text(self):
+        """Markdown strikethrough (~~text~~) is Confluence strikethrough (-text-)."""
+        self.assertEqual(convert_to_confluence("끝 ~~취소선~~ 입니다").strip(), "끝 -취소선- 입니다")
+        self.assertEqual(convert_to_confluence("`~~x~~` 는 그대로").strip(), "~~x~~ 는 그대로")
+
+    def test_table_escaped_pipe_stays_in_cell(self):
+        """An escaped pipe inside a cell must not create an extra column."""
+        input_md = """
+| A \\| B | C |
+|---|---|
+| x\\|y | z |
+"""
+        result = convert_to_confluence(input_md)
+        self.assertIn("|| A \\| B || C ||", result)
+        self.assertIn("| x\\|y | z |", result)
+        self.assertNotIn("| x\\ | y |", result)
+
+    def test_bullet_list_after_numbered_list_is_separate_list(self):
+        """A bullet (task) list after a blank line following the last numbered item is a new list."""
+        input_md = """
+1. 첫째
+2. 둘째
+
+- [ ] 할 일
+- [x] 한 일
+"""
+        result = convert_to_confluence(input_md)
+        self.assertIn("# 둘째\n\n* \\[ ] 할 일\n* \\[x] 한 일", result)
+        self.assertNotIn("#* \\[ ] 할 일", result)
+
+    def test_loose_bullets_between_numbered_items_stay_nested(self):
+        """Bullets separated by blank lines stay nested when the numbered list continues afterwards."""
+        input_md = """
+1. 첫째
+
+- 설명
+
+2. 둘째
+"""
+        result = convert_to_confluence(input_md)
+        self.assertIn("# 첫째\n#* 설명\n# 둘째", result)
+
+    def test_bullets_under_numbered_item_keep_nested_depth(self):
+        """Bullets nested under a numbered item keep each level, whatever the indent width."""
+        for step in (2, 3, 4):
+            pad = ' ' * step
+            input_md = f"1. 단계\n{pad}- 하위\n{pad * 2}- 더 하위\n{pad * 3}- 가장 하위\n{pad}- 다시 하위\n2. 다음"
+            result = convert_to_confluence(input_md)
+            self.assertEqual(
+                result,
+                "# 단계\n#* 하위\n#** 더 하위\n#*** 가장 하위\n#* 다시 하위\n# 다음",
+                f"indent width {step}",
+            )
+
+    def test_unindented_bullet_with_indented_child_under_numbered_item(self):
+        """A child of an unindented bullet under a numbered item is one level deeper."""
+        result = convert_to_confluence("1. 단계\n- 설명\n  - 세부\n2. 다음")
+        self.assertEqual(result, "# 단계\n#* 설명\n#** 세부\n# 다음")
+
+    def test_bullets_under_nested_numbered_item_keep_numbered_prefix(self):
+        """Bullets under a nested numbered item stay under that item, not the top-level list."""
+        result = convert_to_confluence("1. 상위\n   1. 하위 번호\n      - 불릿\n        - 불릿 하위")
+        self.assertEqual(result, "# 상위\n## 하위 번호\n##* 불릿\n##** 불릿 하위")
+
+    def test_box_bullets_under_numbered_item_keep_nested_depth(self):
+        """Nested bullets inside a box keep each level too."""
+        input_md = "> [!NOTE]\n> 1. 단계\n>    - 하위\n>      - 더 하위"
+        result = convert_to_confluence(input_md)
+        self.assertIn("# 단계\n#* 하위\n#** 더 하위", result)
+
 if __name__ == '__main__':
     unittest.main()

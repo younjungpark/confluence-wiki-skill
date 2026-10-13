@@ -161,28 +161,66 @@ def process_inline_formatting(text):
         text,
     )
         
-    # 2. Bold (**text** -> * text * )
+    # 2. Italic (*text* -> _text_), Strikethrough (~~text~~ -> -text-)
+    # Inline code is stashed first so literals such as `*.log` or `~~x~~` stay untouched.
+    code_spans = []
+
+    def stash_code_span(match):
+        code_spans.append(match.group(0))
+        return f'\x00{len(code_spans) - 1}\x00'
+
+    text = re.sub(r'`[^`]+`', stash_code_span, text)
+    # A lone or unpaired asterisk (*.log, /path/**, 2 * 3) is not emphasis; **bold** is handled below.
+    text = re.sub(r'(?<![\w*\\])\*(?=[^\s*])([^*\n]*?)(?<=[^\s*])\*(?![\w*])', r'_\1_', text)
+    text = re.sub(r'~~(?=\S)(.+?)(?<=\S)~~', r'-\1-', text)
+    text = re.sub(r'\x00(\d+)\x00', lambda match: code_spans[int(match.group(1))], text)
+
+    # 3. Bold (**text** -> * text * )
     text = re.sub(r'\*\*(.*?)\*\*', r' *\1* ', text)
     
-    # 3. Inline Code (`text` -> plain text)
+    # 4. Inline Code (`text` -> plain text)
     def smart_inline_code(match):
         return match.group(1)
         
     text = re.sub(r'`([^`]+)`', smart_inline_code, text)
     
-    # 4. Links ([Text](URL) -> [Text|URL])
+    # 5. Links ([Text](URL) -> [Text|URL])
     text = re.sub(
         r'(?<!!)(?<!\\)\[([^\]]+)\]\(([^)]+)\)',
         lambda match: confluence_link_ref(match.group(1), match.group(2)),
         text,
     )
     
-    # 5. Escape special chars (if not already handled)
+    # 6. Escape special chars (if not already handled)
     text = re.sub(r'(?<!\\)(?<!\{)\{(?!\{)', r'\{', text)
     text = re.sub(r'(?<!\\)(?<!\})\}(?!\})', r'\}', text)
     text = re.sub(r'(?<!\\)\[(?!(?:https?://|[^\]]+\|))', r'\[', text)
     
     return escape_confluence_emoticons(text)
+
+def split_table_cells(line):
+    # An escaped pipe (\|) is cell content, not a column separator; Confluence accepts the same escape.
+    return re.split(r'(?<!\\)\|', line.strip())[1:-1]
+
+def numbered_list_resumes(lines, start_index, numbered_indent):
+    """True when the bullets starting at start_index are followed by another item of the same numbered list."""
+    j = start_index
+    while j < len(lines):
+        candidate = lines[j]
+        if candidate.strip() == '' or re.match(r'^\s*[-*]\s+.+$', candidate):
+            j += 1
+            continue
+        numbered_match = re.match(r'^(\s*)\d+\.\s+.+$', candidate)
+        return numbered_match is not None and len(numbered_match.group(1)) == numbered_indent
+    return False
+
+def nested_bullet_depth(indent_stack, indent):
+    """Depth of a bullet under the current numbered item, from the indents seen so far (any indent width)."""
+    while indent_stack and indent_stack[-1] > indent:
+        indent_stack.pop()
+    if not indent_stack or indent_stack[-1] < indent:
+        indent_stack.append(indent)
+    return len(indent_stack)
 
 def is_markdown_list_line(text):
     return re.match(r'^\s*(\d+\.\s+|[-*]\s+).+$', text) is not None
@@ -196,6 +234,8 @@ def convert_to_confluence(content, source_base_name='mermaid'):
     in_code_block = False
     in_numbered_list = False
     numbered_list_indent = None
+    numbered_list_marker = '#'
+    numbered_bullet_indents = []
     heading_stack = {}
     mermaid_diagram_index = 0
     used_mermaid_names = {}
@@ -291,6 +331,8 @@ def convert_to_confluence(content, source_base_name='mermaid'):
                 container_in_code = False
                 box_in_numbered_list = False
                 box_numbered_indent = None
+                box_numbered_marker = '#'
+                box_bullet_indents = []
                 while i < len(lines) and lines[i].strip().startswith('>'):
                     raw_line = lines[i].strip()
                     content_line = raw_line[2:] if raw_line.startswith('> ') else raw_line[1:]
@@ -306,11 +348,12 @@ def convert_to_confluence(content, source_base_name='mermaid'):
                                 numbered_match = re.match(r'^(\s*)(\d+)\.\s+(.+)$', content_line)
                                 if numbered_match:
                                     indent = len(numbered_match.group(1))
-                                    hash_count = calculate_list_level(indent)
+                                    box_numbered_marker = '#' * calculate_list_level(indent)
                                     text = process_inline_formatting(numbered_match.group(3))
-                                    output.append(f"{'#' * hash_count} {text}")
+                                    output.append(f"{box_numbered_marker} {text}")
                                     box_in_numbered_list = True
                                     box_numbered_indent = indent
+                                    box_bullet_indents = []
                                     i += 1
                                     continue
 
@@ -319,9 +362,8 @@ def convert_to_confluence(content, source_base_name='mermaid'):
                                     indent = len(list_match.group(1))
                                     text = process_inline_formatting(list_match.group(3))
                                     if box_in_numbered_list and box_numbered_indent is not None and indent >= box_numbered_indent:
-                                        relative_indent = indent - box_numbered_indent
-                                        star_count = max(1, relative_indent // 4)
-                                        output.append(f"#{'*' * star_count} {text}")
+                                        star_count = nested_bullet_depth(box_bullet_indents, indent)
+                                        output.append(f"{box_numbered_marker}{'*' * star_count} {text}")
                                     else:
                                         star_count = calculate_list_level(indent)
                                         if indent == 0:
@@ -398,8 +440,19 @@ def convert_to_confluence(content, source_base_name='mermaid'):
 
             next_line = lines[next_index] if next_index < len(lines) else ''
             if prev_non_empty and is_confluence_list_line(prev_non_empty) and is_markdown_list_line(next_line):
-                i += 1
-                continue
+                # A bullet list after a blank line is a new list (e.g. a task list following numbered steps),
+                # unless the numbered list continues afterwards, in which case the bullets stay nested.
+                next_bullet = re.match(r'^(\s*)[-*]\s+', next_line)
+                starts_new_bullet_list = (
+                    in_numbered_list
+                    and numbered_list_indent is not None
+                    and next_bullet is not None
+                    and len(next_bullet.group(1)) <= numbered_list_indent
+                    and not numbered_list_resumes(lines, next_index, numbered_list_indent)
+                )
+                if not starts_new_bullet_list:
+                    i += 1
+                    continue
 
             in_numbered_list = False
             numbered_list_indent = None
@@ -413,14 +466,14 @@ def convert_to_confluence(content, source_base_name='mermaid'):
                 output.append('')
 
             if i + 1 < len(lines) and re.match(r'^\s*\|[-:| ]+\|\s*$', lines[i+1]):
-                cells = line.strip().split('|')[1:-1]
+                cells = split_table_cells(line)
                 # Apply inline formatting to header cells
                 converted = [process_inline_formatting(c.strip()) for c in cells]
                 output.append('|| ' + ' || '.join(converted) + ' ||')
                 i += 2
                 continue
             else:
-                cells = line.strip().split('|')[1:-1]
+                cells = split_table_cells(line)
                 # Apply inline formatting and <br> conversion to normal cells
                 converted = [process_inline_formatting(c.strip().replace('<br>', ' \\\\ ').replace('<br/>', ' \\\\ ')) for c in cells]
                 output.append('| ' + ' | '.join(converted) + ' |')
@@ -447,12 +500,13 @@ def convert_to_confluence(content, source_base_name='mermaid'):
             else:
                 parent_bullet_level = find_parent_bullet_level(lines, i, indent)
                 if parent_bullet_level > 0:
-                    output.append(f"{'*' * parent_bullet_level}# {text}")
+                    numbered_list_marker = f"{'*' * parent_bullet_level}#"
                 else:
-                    hash_count = calculate_list_level(indent)
-                    output.append(f"{'#' * hash_count} {text}")
+                    numbered_list_marker = '#' * calculate_list_level(indent)
+                output.append(f"{numbered_list_marker} {text}")
                 in_numbered_list = True
                 numbered_list_indent = indent
+                numbered_bullet_indents = []
             i += 1
             continue
         
@@ -464,9 +518,8 @@ def convert_to_confluence(content, source_base_name='mermaid'):
             indent = len(list_match.group(1))
             text = process_inline_formatting(list_match.group(3))
             if in_numbered_list and numbered_list_indent is not None and indent >= numbered_list_indent:
-                relative_indent = indent - numbered_list_indent
-                star_count = max(1, relative_indent // 4)
-                output.append(f"#{'*' * star_count} {text}")
+                star_count = nested_bullet_depth(numbered_bullet_indents, indent)
+                output.append(f"{numbered_list_marker}{'*' * star_count} {text}")
             else:
                 star_count = calculate_list_level(indent)
                 if indent == 0:
