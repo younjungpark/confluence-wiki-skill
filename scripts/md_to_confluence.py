@@ -143,10 +143,10 @@ def mermaid_attachment_name(source_base_name, heading_stack, diagram_index, used
 
     return f'{name}.png'
 
-def mermaid_attachment_lines(image_name):
+def mermaid_attachment_lines(image_name, width=900):
     source_name = re.sub(r'\.png$', '.mmd', image_name, flags=re.IGNORECASE)
     return [
-        f'!{image_name}|width=900!',
+        f'!{image_name}|width={width}!',
         '',
         f'{{code:title={source_name}|collapse=true}}',
     ]
@@ -230,7 +230,7 @@ def is_markdown_list_line(text):
 def is_confluence_list_line(text):
     return re.match(r'^([#*]+|\d+\))\s+.+$', text) is not None
 
-def convert_to_confluence(content, source_base_name='mermaid'):
+def convert_to_confluence(content, source_base_name='mermaid', mermaid_width=900):
     lines = content.split('\n')
     output = []
     in_code_block = False
@@ -273,7 +273,7 @@ def convert_to_confluence(content, source_base_name='mermaid'):
                         mermaid_diagram_index,
                         used_mermaid_names,
                     )
-                    output.extend(mermaid_attachment_lines(image_name))
+                    output.extend(mermaid_attachment_lines(image_name, mermaid_width))
                     convert_to_confluence.current_lang = 'mermaid'
                 elif lang_lower in SUPPORTED_LANGUAGES:
                     output.append(f'{{code:language={lang_lower}}}')
@@ -585,7 +585,7 @@ def render_mermaid_sources(sources, output_dir, mmdc_command='mmdc'):
         image_path = re.sub(r'\.mmd$', '.png', source_path)
         with open(source_path, 'w', encoding='utf-8') as f:
             f.write(body)
-        # White background keeps dark text readable in dark viewers; scale 2 stays sharp at width=900.
+        # White background keeps dark text readable in dark viewers; scale 2 stays sharp at the default width=900.
         result = subprocess.run(
             [mmdc_path, '-i', source_path, '-o', image_path, '-b', 'white', '-s', '2'],
             capture_output=True,
@@ -597,12 +597,12 @@ def render_mermaid_sources(sources, output_dir, mmdc_command='mmdc'):
     return rendered
 
 def convert_file(input_file, output_file, include_markdown_source=False,
-                 render_mermaid=False, mermaid_dir=None, mmdc_command='mmdc'):
+                 render_mermaid=False, mermaid_dir=None, mmdc_command='mmdc', mermaid_width=900):
     if not os.path.exists(input_file): return
     with open(input_file, 'r', encoding='utf-8') as f:
         content = f.read()
     source_base_name = os.path.splitext(os.path.basename(input_file))[0]
-    converted = convert_to_confluence(content, source_base_name).rstrip()
+    converted = convert_to_confluence(content, source_base_name, mermaid_width).rstrip()
     if include_markdown_source:
         converted += markdown_source_section(input_file)
     converted += '\n'
@@ -633,11 +633,17 @@ if __name__ == "__main__":
         '--mermaid-dir',
         help='directory for rendered .mmd/.png files (default: the output file directory)',
     )
+    parser.add_argument(
+        '--mermaid-width',
+        type=int,
+        default=900,
+        help='display width of Mermaid image tags in pixels (default: 900)',
+    )
     args = parser.parse_args()
     output_file = args.output_file or f"{os.path.splitext(args.input_file)[0]}.wiki"
     try:
         convert_file(args.input_file, output_file, args.include_markdown_source,
-                     args.render_mermaid, args.mermaid_dir)
+                     args.render_mermaid, args.mermaid_dir, mermaid_width=args.mermaid_width)
     except RuntimeError as error:
         print(error, file=sys.stderr)
         sys.exit(1)

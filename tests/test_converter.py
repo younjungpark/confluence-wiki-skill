@@ -476,6 +476,13 @@ flowchart TD
             with open(calls, encoding="utf-8") as f:
                 self.assertIn("-b white -s 2", f.read())
 
+    def test_mermaid_width_sets_image_tag_width(self):
+        """--mermaid-width changes only the Mermaid image tags; Markdown images keep width=900."""
+        input_md = "## Flow (Sync)\n\n```mermaid\nflowchart TB\n    A --> B\n```\n\n![Chart](images/chart.png)"
+        result = convert_to_confluence(input_md, "guide", mermaid_width=350)
+        self.assertIn("!guide-sync.png|width=350!", result)
+        self.assertIn("!chart.png|width=900!", result)
+
     def test_render_mermaid_without_mmdc_reports_install_command(self):
         """A missing mmdc fails with the install command instead of leaving a dangling image tag silently."""
         with tempfile.TemporaryDirectory() as tmp:

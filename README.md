@@ -63,8 +63,10 @@ python scripts/md_to_confluence.py <INPUT_FILE> <OUTPUT_FILE> --include-markdown
 Render each Mermaid block to the `.png` the wiki image tag refers to (requires `npm install -g @mermaid-js/mermaid-cli`):
 
 ```bash
-python scripts/md_to_confluence.py <INPUT_FILE> <OUTPUT_FILE> --render-mermaid [--mermaid-dir <DIR>]
+python scripts/md_to_confluence.py <INPUT_FILE> <OUTPUT_FILE> --render-mermaid [--mermaid-dir <DIR>] [--mermaid-width <PX>]
 ```
+
+`--mermaid-width` sets the display width of Mermaid image tags (default 900); Markdown images keep 900.
 
 ## Example
 

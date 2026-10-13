@@ -22,8 +22,10 @@ python scripts/md_to_confluence.py <INPUT_FILE> <OUTPUT_FILE> --include-markdown
 
 ```bash
 # Mermaid 블록을 .mmd와 .png로 함께 생성 (기본 위치: 출력 파일과 같은 디렉터리)
-python scripts/md_to_confluence.py <INPUT_FILE> <OUTPUT_FILE> --render-mermaid [--mermaid-dir <DIR>]
+python scripts/md_to_confluence.py <INPUT_FILE> <OUTPUT_FILE> --render-mermaid [--mermaid-dir <DIR>] [--mermaid-width <PX>]
 ```
+
+`--mermaid-width`는 Mermaid 이미지 태그의 표시 너비이다(기본 900). 세로로 긴 그림은 350~450 정도로 줄인다. 일반 Markdown 이미지 너비는 바꾸지 않는다.
 
 `--render-mermaid`는 `.wiki`의 이미지 태그와 같은 이름으로 `.mmd` 원본과 `.png`를 만든다. PNG는 Mermaid CLI(`mmdc -b white -s 2`)로 렌더링하며, `mmdc`가 없으면 설치 명령(`npm install -g @mermaid-js/mermaid-cli`)을 출력하고 실패한다. 문서에 Mermaid 블록이 있으면 이 옵션을 지정한다. 생성한 PNG는 Confluence 페이지에 같은 파일명으로 수동 첨부한다.
 
