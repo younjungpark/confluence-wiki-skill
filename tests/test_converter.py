@@ -1,10 +1,16 @@
 import unittest
 import sys
 import os
+import tempfile
 
 # Add scripts directory to path to allow import
 sys.path.append(os.path.join(os.path.dirname(__file__), '../scripts'))
-from md_to_confluence import convert_file, convert_to_confluence
+from md_to_confluence import (
+    convert_file,
+    convert_to_confluence,
+    extract_mermaid_sources,
+    render_mermaid_sources,
+)
 
 class TestMdToConfluence(unittest.TestCase):
     
@@ -423,6 +429,59 @@ flowchart TD
         input_md = "> [!NOTE]\n> 1. 단계\n>    - 하위\n>      - 더 하위"
         result = convert_to_confluence(input_md)
         self.assertIn("# 단계\n#* 하위\n#** 더 하위", result)
+
+    def test_extract_mermaid_sources_returns_name_and_body(self):
+        """Only collapsed Mermaid blocks are extracted, with the .mmd name the image tag implies."""
+        input_md = (
+            "## Sync (Jenkins)\n\n```mermaid\nflowchart LR\n    A --> B\n```\n\n"
+            "```bash\necho hi\n```\n\n"
+            "## Order (Sequence)\n\n```mermaid\nsequenceDiagram\n    A->>B: hi\n```"
+        )
+        sources = extract_mermaid_sources(convert_to_confluence(input_md, "guide"))
+        self.assertEqual(
+            sources,
+            [
+                ("guide-jenkins.mmd", "flowchart LR\n    A --> B\n"),
+                ("guide-sequence.mmd", "sequenceDiagram\n    A->>B: hi\n"),
+            ],
+        )
+
+    def test_convert_file_renders_mermaid_with_mmdc(self):
+        """--render-mermaid writes the .mmd source and asks mmdc for the .png the wiki refers to."""
+        with tempfile.TemporaryDirectory() as tmp:
+            stub = os.path.join(tmp, "fake-mmdc")
+            calls = os.path.join(tmp, "calls.txt")
+            with open(stub, "w", encoding="utf-8") as f:
+                f.write(
+                    f"#!{sys.executable}\n"
+                    "import sys\n"
+                    f"open({calls!r}, 'a').write(' '.join(sys.argv[1:]) + '\\n')\n"
+                    "open(sys.argv[sys.argv.index('-o') + 1], 'wb').write(b'png')\n"
+                )
+            os.chmod(stub, 0o755)
+            input_file = os.path.join(tmp, "guide.md")
+            with open(input_file, "w", encoding="utf-8") as f:
+                f.write("## Sync (Jenkins)\n\n```mermaid\nflowchart LR\n    A --> B\n```\n")
+            output_file = os.path.join(tmp, "guide.wiki")
+            image_dir = os.path.join(tmp, "images")
+
+            convert_file(input_file, output_file, render_mermaid=True,
+                         mermaid_dir=image_dir, mmdc_command=stub)
+
+            with open(output_file, encoding="utf-8") as f:
+                self.assertIn("!guide-jenkins.png|width=900!", f.read())
+            with open(os.path.join(image_dir, "guide-jenkins.mmd"), encoding="utf-8") as f:
+                self.assertEqual(f.read(), "flowchart LR\n    A --> B\n")
+            self.assertTrue(os.path.exists(os.path.join(image_dir, "guide-jenkins.png")))
+            with open(calls, encoding="utf-8") as f:
+                self.assertIn("-b white -s 2", f.read())
+
+    def test_render_mermaid_without_mmdc_reports_install_command(self):
+        """A missing mmdc fails with the install command instead of leaving a dangling image tag silently."""
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.assertRaises(RuntimeError) as context:
+                render_mermaid_sources([("a.mmd", "flowchart LR\n")], tmp, "no-such-mmdc-command")
+            self.assertIn("@mermaid-js/mermaid-cli", str(context.exception))
 
 if __name__ == '__main__':
     unittest.main()

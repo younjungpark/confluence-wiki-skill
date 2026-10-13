@@ -60,6 +60,12 @@ The source Markdown attachment-link section is disabled by default. Include it e
 python scripts/md_to_confluence.py <INPUT_FILE> <OUTPUT_FILE> --include-markdown-source
 ```
 
+Render each Mermaid block to the `.png` the wiki image tag refers to (requires `npm install -g @mermaid-js/mermaid-cli`):
+
+```bash
+python scripts/md_to_confluence.py <INPUT_FILE> <OUTPUT_FILE> --render-mermaid [--mermaid-dir <DIR>]
+```
+
 ## Example
 
 ```bash

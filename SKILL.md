@@ -20,6 +20,13 @@ python scripts/md_to_confluence.py <INPUT_FILE> <OUTPUT_FILE>
 python scripts/md_to_confluence.py <INPUT_FILE> <OUTPUT_FILE> --include-markdown-source
 ```
 
+```bash
+# Mermaid 블록을 .mmd와 .png로 함께 생성 (기본 위치: 출력 파일과 같은 디렉터리)
+python scripts/md_to_confluence.py <INPUT_FILE> <OUTPUT_FILE> --render-mermaid [--mermaid-dir <DIR>]
+```
+
+`--render-mermaid`는 `.wiki`의 이미지 태그와 같은 이름으로 `.mmd` 원본과 `.png`를 만든다. PNG는 Mermaid CLI(`mmdc -b white -s 2`)로 렌더링하며, `mmdc`가 없으면 설치 명령(`npm install -g @mermaid-js/mermaid-cli`)을 출력하고 실패한다. 문서에 Mermaid 블록이 있으면 이 옵션을 지정한다. 생성한 PNG는 Confluence 페이지에 같은 파일명으로 수동 첨부한다.
+
 원본 Markdown 첨부 링크 섹션은 기본적으로 생성하지 않는다. 사용자가 요청한 경우에만 `--include-markdown-source`를 지정한다. 이 옵션을 지정하면 결과 하단에 `h2. MarkDown 원본문서`와 `[파일명|^파일명]`을 추가한다. Markdown 원본은 Confluence 페이지에 같은 파일명으로 수동 첨부한다.
 
 ## 테스트
@@ -85,7 +92,7 @@ Confluence Wiki로 옮길 목적의 Markdown은 일반 Markdown 렌더링보다 
 5. 제목이 `h1.`, `h2.` 형식으로 변환되었는지 확인한다
 6. Markdown 이미지가 `!파일명.png|width=900!` 형태로 변환되었는지 확인한다
 7. 번호 목록 바로 아래 코드블록 구간이 `1)`, `2)` 텍스트 번호로 출력되는지 확인한다
-8. Mermaid 코드 블록 앞에 이미지 태그가 있고, `{code:title=파일명.mmd|collapse=true}`로 접히며, 백틱 펜스 없이 본문만 들어가는지 확인한다
+8. Mermaid 코드 블록 앞에 이미지 태그가 있고, `{code:title=파일명.mmd|collapse=true}`로 접히며, 백틱 펜스 없이 본문만 들어가는지 확인한다. `--render-mermaid`로 이미지 태그마다 같은 이름의 `.png`가 생성되었는지 확인한다
 9. `--include-markdown-source` 지정 여부와 결과 하단의 `MarkDown 원본문서` 섹션 생성 여부가 일치하는지 확인한다
 10. Confluence 이관용 원본에서 인라인 코드 백틱을 남발하지 않았는지 확인한다
 11. URL, jar 파일명, 와일드카드 경로가 Confluence 렌더링에서 깨지지 않는 형태인지 확인한다

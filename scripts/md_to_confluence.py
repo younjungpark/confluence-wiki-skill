@@ -1,6 +1,8 @@
 import argparse
 import re
 import os
+import shutil
+import subprocess
 import sys
 
 def calculate_list_level(indent):
@@ -549,7 +551,53 @@ def markdown_source_section(input_file):
         return ''
     return f'\n\nh2. MarkDown 원본문서\n\n[{file_name}|^{file_name}]'
 
-def convert_file(input_file, output_file, include_markdown_source=False):
+def extract_mermaid_sources(converted):
+    """(source file name, body) pairs of the collapsed Mermaid code blocks in converted wiki text."""
+    sources = []
+    lines = converted.split('\n')
+    i = 0
+    while i < len(lines):
+        match = re.match(r'^\{code:title=(.+\.mmd)\|collapse=true\}$', lines[i])
+        i += 1
+        if not match:
+            continue
+        body = []
+        while i < len(lines) and lines[i] != '{code}':
+            body.append(lines[i])
+            i += 1
+        i += 1
+        sources.append((match.group(1), '\n'.join(body) + '\n'))
+    return sources
+
+def render_mermaid_sources(sources, output_dir, mmdc_command='mmdc'):
+    """Write each Mermaid source as .mmd and render the .png the wiki image tag refers to."""
+    if not sources:
+        return []
+    mmdc_path = shutil.which(mmdc_command)
+    if mmdc_path is None:
+        raise RuntimeError(
+            f'{mmdc_command} not found. Install it with: npm install -g @mermaid-js/mermaid-cli'
+        )
+    os.makedirs(output_dir, exist_ok=True)
+    rendered = []
+    for source_name, body in sources:
+        source_path = os.path.join(output_dir, source_name)
+        image_path = re.sub(r'\.mmd$', '.png', source_path)
+        with open(source_path, 'w', encoding='utf-8') as f:
+            f.write(body)
+        # White background keeps dark text readable in dark viewers; scale 2 stays sharp at width=900.
+        result = subprocess.run(
+            [mmdc_path, '-i', source_path, '-o', image_path, '-b', 'white', '-s', '2'],
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode != 0 or not os.path.exists(image_path):
+            raise RuntimeError(f'Failed to render {source_path}:\n{result.stderr.strip()}')
+        rendered.append(image_path)
+    return rendered
+
+def convert_file(input_file, output_file, include_markdown_source=False,
+                 render_mermaid=False, mermaid_dir=None, mmdc_command='mmdc'):
     if not os.path.exists(input_file): return
     with open(input_file, 'r', encoding='utf-8') as f:
         content = f.read()
@@ -561,6 +609,10 @@ def convert_file(input_file, output_file, include_markdown_source=False):
     with open(output_file, 'w', encoding='utf-8') as f:
         f.write(converted)
     print(f"Successfully converted and saved to: {output_file}")
+    if render_mermaid:
+        output_dir = mermaid_dir or os.path.dirname(os.path.abspath(output_file))
+        for image_path in render_mermaid_sources(extract_mermaid_sources(converted), output_dir, mmdc_command):
+            print(f"Rendered Mermaid diagram: {image_path}")
 
 if __name__ == "__main__":
     if sys.stdout.encoding != 'utf-8': sys.stdout.reconfigure(encoding='utf-8')
@@ -572,6 +624,20 @@ if __name__ == "__main__":
         action='store_true',
         help='append a Confluence attachment link to the source Markdown',
     )
+    parser.add_argument(
+        '--render-mermaid',
+        action='store_true',
+        help='write each Mermaid block as .mmd and render the attached .png with mmdc',
+    )
+    parser.add_argument(
+        '--mermaid-dir',
+        help='directory for rendered .mmd/.png files (default: the output file directory)',
+    )
     args = parser.parse_args()
     output_file = args.output_file or f"{os.path.splitext(args.input_file)[0]}.wiki"
-    convert_file(args.input_file, output_file, args.include_markdown_source)
+    try:
+        convert_file(args.input_file, output_file, args.include_markdown_source,
+                     args.render_mermaid, args.mermaid_dir)
+    except RuntimeError as error:
+        print(error, file=sys.stderr)
+        sys.exit(1)
